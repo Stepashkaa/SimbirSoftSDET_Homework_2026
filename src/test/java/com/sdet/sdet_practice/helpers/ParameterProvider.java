@@ -14,14 +14,16 @@ public final class ParameterProvider {
     private final Map<String, String> parameters;
 
     private ParameterProvider() {
-        try {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PARAMETERS_PATH)){
+            if (inputStream == null) {
+                throw new RuntimeException("Configuration file not found: " + PARAMETERS_PATH);
+            }
             parameters = new HashMap<>();
             Properties prop = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PARAMETERS_PATH);
             prop.load(inputStream);
             prop.stringPropertyNames().forEach(key -> parameters.put(key, prop.getProperty(key)));
         } catch (IOException e){
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to load configuration", e);
         }
     }
 

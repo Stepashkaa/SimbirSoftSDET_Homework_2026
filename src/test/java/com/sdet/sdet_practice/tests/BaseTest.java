@@ -1,8 +1,8 @@
 package com.sdet.sdet_practice.tests;
 
 import com.sdet.sdet_practice.helpers.ParameterProvider;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -14,15 +14,20 @@ public abstract class BaseTest {
     static WebDriver driver;
     static WebDriverWait waiter;
 
-    @BeforeEach
+    @BeforeMethod
     public void up(){
         driver = new ChromeDriver();
-        waiter = new WebDriverWait(driver, Duration.ofSeconds(Long.parseLong(ParameterProvider.get("explicit.wait.time"))));
+        driver.manage().window().maximize();
+        waiter = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(Long.parseLong(ParameterProvider.get("explicit.wait.time"))));
         driver.get(ParameterProvider.get("base.url"));
     }
 
-    @AfterEach
+    @AfterMethod(alwaysRun = true)
     public void tearDown(){
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }
