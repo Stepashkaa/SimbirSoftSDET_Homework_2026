@@ -17,16 +17,24 @@ import java.util.List;
 public class CategoryFilterTest extends BaseTest{
 
     private CategoryPage categoryPage;
+    private String categoryTitle;
 
     @BeforeMethod
-    @Step("Открываем категорию Shoes")
+    @Step("Открываем первую категорию с сортировкой и минимум 4 товарами")
     public void setUpPage() {
         HomePage homePage = new HomePage(driver, waiter);
-        categoryPage = homePage.openShoesCategory();
+        categoryPage = homePage.openFirstCategoryWithAtLeastFourProducts();
+
+        categoryTitle = categoryPage.getPageTitle();
+
+        Assert.assertFalse(
+                categoryTitle.isBlank(),
+                "Должен открыться заголовок категории"
+        );
 
         Assert.assertTrue(
-                categoryPage.getPageTitle().equalsIgnoreCase("SHOES"),
-                "Должна открыться страница категории Shoes"
+                categoryPage.hasSorting(),
+                "На странице категории должна быть кнопка для сортировки"
         );
 
         Assert.assertTrue(
@@ -49,7 +57,7 @@ public class CategoryFilterTest extends BaseTest{
         Assert.assertEquals(
                 actualNames,
                 expectedNames,
-                "Товары должны быть отсортированы по имени по возрастанию"
+                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по имени по возрастанию"
         );
     }
 
@@ -67,7 +75,7 @@ public class CategoryFilterTest extends BaseTest{
         Assert.assertEquals(
                 actualNames,
                 expectedNames,
-                "Товары должны быть отсортированы по имени по убыванию"
+                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по имени по убыванию"
         );
     }
 
@@ -85,7 +93,7 @@ public class CategoryFilterTest extends BaseTest{
         Assert.assertEquals(
                 actualPrices,
                 expectedPrices,
-                "Товары должны быть отсортированы по цене по возрастанию"
+                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по цене по возрастанию"
         );
     }
 
@@ -103,7 +111,7 @@ public class CategoryFilterTest extends BaseTest{
         Assert.assertEquals(
                 actualPrices,
                 expectedPrices,
-                "Товары должны быть отсортированы по цене по убыванию"
+                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по цене по убыванию"
         );
     }
 

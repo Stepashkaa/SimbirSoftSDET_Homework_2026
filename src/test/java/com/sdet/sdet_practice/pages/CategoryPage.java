@@ -28,6 +28,10 @@ public class CategoryPage extends BasePage{
         return waiter.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText().trim();
     }
 
+    public boolean hasSorting() {
+        return !driver.findElements(sortSelect).isEmpty();
+    }
+
     public int getProductsCount(){
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
         return driver.findElements(gridProductCards).size();
