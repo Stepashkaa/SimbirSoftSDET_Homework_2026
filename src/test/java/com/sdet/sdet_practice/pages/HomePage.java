@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -13,6 +14,9 @@ public class HomePage extends BasePage{
 
     private final By topCategoryLinks = By.cssSelector("#categorymenu .categorymenu > li > a[href*='path=']");
 
+    private final By search = By.cssSelector("#filter_keyword");
+    private final By searchButton = By.cssSelector(".button-in-search");
+
     public HomePage(WebDriver driver, WebDriverWait waiter) {
         super(driver, waiter);
     }
@@ -22,6 +26,7 @@ public class HomePage extends BasePage{
         return this;
     }
 
+    @Step("Проверка чтобы товаров в категории было не менее 4 и была сортировка")
     public CategoryPage openFirstCategoryWithAtLeastFourProducts() {
         List<WebElement> categoryLinks = waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(topCategoryLinks));
 
@@ -41,5 +46,17 @@ public class HomePage extends BasePage{
             waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(topCategoryLinks));
         }
         throw new IllegalStateException("Не найдена категория с сортировкой и минимум 4 товарами");
+    }
+
+    @Step("Выполнить поиск по запросу: {query}")
+    public SearchResultsPage searchFor(String query){
+        WebElement searchField = waiter.until(ExpectedConditions.visibilityOfElementLocated(search));
+        searchField.clear();
+        searchField.sendKeys(query);
+
+        WebElement searchButtonField = waiter.until(ExpectedConditions.elementToBeClickable(searchButton));
+        searchButtonField.click();
+
+        return new SearchResultsPage(driver, waiter);
     }
 }

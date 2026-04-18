@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -24,19 +25,23 @@ public class CategoryPage extends BasePage{
         super(driver, waiter);
     }
 
+    @Step("Получить заголовок текущей категории")
     public String getPageTitle(){
         return waiter.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText().trim();
     }
 
+    @Step("Проверить наличие сортировки на странице категории")
     public boolean hasSorting() {
         return !driver.findElements(sortSelect).isEmpty();
     }
 
+    @Step("Получить количество товаров в категории")
     public int getProductsCount(){
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
         return driver.findElements(gridProductCards).size();
     }
 
+    @Step("Выбрать сортировку")
     public CategoryPage sortByVisibleText(String visibleText){
         WebElement selectElement = waiter.until(ExpectedConditions.elementToBeClickable(sortSelect));
         new Select(selectElement).selectByVisibleText(visibleText);
@@ -45,6 +50,7 @@ public class CategoryPage extends BasePage{
         return this;
     }
 
+    @Step("Получить список названий товаров")
     public List<String> getProductNames(){
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
         List<WebElement> elements = driver.findElements(gridProductNames);
@@ -56,6 +62,7 @@ public class CategoryPage extends BasePage{
         return names;
     }
 
+    @Step("Получить список цен товаров")
     public List<BigDecimal> getProductPrices(){
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductPrices));
         List<WebElement> elements = driver.findElements(gridProductPrices);
