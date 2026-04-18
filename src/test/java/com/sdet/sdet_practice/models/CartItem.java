@@ -4,18 +4,18 @@ import java.math.BigDecimal;
 
 public class CartItem {
 
-    private final String Name;
+    private final String name;
     private final BigDecimal unitPrice;
     private int quantity;
 
     public CartItem(String name, BigDecimal unitPrice, int quantity) {
-        Name = name;
+        this.name = name;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public BigDecimal getUnitPrice() {

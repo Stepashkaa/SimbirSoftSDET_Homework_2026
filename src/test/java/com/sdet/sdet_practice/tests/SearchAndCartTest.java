@@ -19,7 +19,7 @@ public class SearchAndCartTest extends BaseTest{
     @Test(description = "Поиск shirt, добавление 2 и 3 товара в корзину")
     @Story("Пользователь ищет товары, добавляет их в корзину и проверяет итоговую сумму")
     @Severity(SeverityLevel.CRITICAL)
-    public void openSecondSearchResultAndPrepareForAddingToCart(){
+    public void shouldOpenSecondSearchResultAndPrepareForAddingToCart(){
         HomePage homePage = new HomePage(driver, waiter);
         SearchResultsPage resultsPage = homePage
                 .open()
@@ -92,9 +92,5 @@ public class SearchAndCartTest extends BaseTest{
                 expectedSubTotal,
                 "Sub-Total корзины должен совпадать с ожидаемой суммой"
         );
-    }
-
-    public int getRandomQuantity(){
-        return new Random().nextInt(3) + 1;
     }
 }

@@ -20,7 +20,6 @@ public class CategoryFilterTest extends BaseTest{
     private String categoryTitle;
 
     @BeforeMethod
-    @Step("Открываем первую категорию с сортировкой и минимум 4 товарами")
     public void setUpPage() {
         HomePage homePage = new HomePage(driver, waiter);
         categoryPage = homePage.openFirstCategoryWithAtLeastFourProducts();

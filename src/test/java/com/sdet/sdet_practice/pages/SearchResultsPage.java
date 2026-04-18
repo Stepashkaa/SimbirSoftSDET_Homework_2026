@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SearchResultsPage extends BasePage{
 
-    private final By pageTitle = By.className("span.maintext");
+    private final By pageTitle = By.cssSelector("span.maintext");
     private final By sortSelect = By.id("sort");
 
     private final By gridProductCards = By.cssSelector(".thumbnails.grid .col-md-3");
@@ -58,19 +58,6 @@ public class SearchResultsPage extends BasePage{
             names.add(element.getText().trim());
         }
         return names;
-    }
-
-    @Step("Открыть товар")
-    public ProductPage openProductByIndex(int index){
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
-        List<WebElement> products = driver.findElements(gridProductNames);
-
-        if(index < 0 || index >= products.size()){
-            throw new IllegalArgumentException("Некорректный индекс товара: " + index);
-        }
-
-        products.get(index).click();
-        return new ProductPage(driver, waiter);
     }
 
     @Step("Открыть первый доступный для добавления товар, начиная с индекса")

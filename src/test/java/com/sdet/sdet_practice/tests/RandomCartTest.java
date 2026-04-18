@@ -21,7 +21,7 @@ public class RandomCartTest extends BaseTest{
     @Test(description = "Добавление 5 случайных товаров с главной страницы, удаление четных товаров из корзины и проверка итоговой суммы")
     @Story("Пользователь добавляет случайные товары в корзину, удаляет четные позиции и проверяет subtotal")
     @Severity(SeverityLevel.CRITICAL)
-    public void addFiveRandomProductsRemoveAndValidateSubtotal(){
+    public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal(){
         HomePage homePage = new HomePage(driver, waiter);
 
         homePage.open();
@@ -89,9 +89,5 @@ public class RandomCartTest extends BaseTest{
                 subTotal,
                 "Sub-Total должен совпадать с ожидаемой суммой после удаления четных товаров"
         );
-    }
-
-    public int getRandomQuantity(){
-        return new Random().nextInt(3) + 1;
     }
 }

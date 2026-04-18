@@ -20,13 +20,9 @@ public class CartPage extends BasePage{
     private final By updateButton = By.id("cart_update");
 
     private final By itemName = By.cssSelector("td.align_left a");
-    private final By unitPriceProduct = By.cssSelector("td.align_left:nth-of-type(1)");
     private final By quantityInput = By.cssSelector("input[id^='cart_quantity']");
-    private final By lineTotalCell = By.cssSelector("td.align_right:nth-of-type(2)");
 
     private final By totalsRows = By.cssSelector("#totals_table tr");
-
-    private final By removeButtons = By.cssSelector(".cart-info.product-list table tbody tr:not(:first-child) td.align_center a.btn.btn-sm.btn-default");
 
     public CartPage(WebDriver driver, WebDriverWait waiter) {
         super(driver, waiter);
@@ -72,7 +68,7 @@ public class CartPage extends BasePage{
 
     @Step("Изменить количество товара")
     public CartPage updateQuantityByProductName(String productName, int newQuantity){
-        waiter.until(ExpectedConditions.visibilityOfElementLocated(cartRows));
+        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
         List<WebElement> rows = driver.findElements(cartRows);
 
         for(WebElement row : rows){

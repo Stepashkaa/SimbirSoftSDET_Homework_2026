@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import com.sdet.sdet_practice.helpers.ParameterProvider;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -25,7 +26,7 @@ public class HomePage extends BasePage{
     }
 
     public HomePage open(){
-        driver.get("https://automationteststore.com/");
+        driver.get(ParameterProvider.get("base.url"));
         return this;
     }
 
@@ -37,7 +38,6 @@ public class HomePage extends BasePage{
             categoryLinks = driver.findElements(topCategoryLinks);
             WebElement categoryLink = categoryLinks.get(i);
 
-            String categoryName = categoryLink.getText().trim();
             categoryLink.click();
 
             CategoryPage categoryPage = new CategoryPage(driver, waiter);

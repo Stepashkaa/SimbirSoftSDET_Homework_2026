@@ -8,11 +8,12 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Random;
 
 public abstract class BaseTest {
 
-    static WebDriver driver;
-    static WebDriverWait waiter;
+    protected WebDriver driver;
+    protected WebDriverWait waiter;
 
     @BeforeMethod
     public void up(){
@@ -29,5 +30,9 @@ public abstract class BaseTest {
         if (driver != null) {
             driver.quit();
         }
+    }
+
+    protected int getRandomQuantity(){
+        return new Random().nextInt(3) + 1;
     }
 }

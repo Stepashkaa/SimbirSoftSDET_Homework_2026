@@ -15,7 +15,6 @@ public class ProductPage extends BasePage{
     private final By productPrice = By.cssSelector(".productfilneprice");
 
     private final By quantityField = By.cssSelector("#product_quantity");
-    private final By totalPrice = By.cssSelector(".total-price");
     private final By outOfStockLabel = By.cssSelector(".productpagecart .nostock");
     private final By addToCartButton = By.cssSelector(".productpagecart a.cart");
 
