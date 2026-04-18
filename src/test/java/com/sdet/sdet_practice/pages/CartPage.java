@@ -26,6 +26,8 @@ public class CartPage extends BasePage{
 
     private final By totalsRows = By.cssSelector("#totals_table tr");
 
+    private final By removeButtons = By.cssSelector(".cart-info.product-list table tbody tr:not(:first-child) td.align_center a.btn.btn-sm.btn-default");
+
     public CartPage(WebDriver driver, WebDriverWait waiter) {
         super(driver, waiter);
     }
@@ -120,5 +122,22 @@ public class CartPage extends BasePage{
     public BigDecimal parseMoney(String raw){
         String normalized = raw.replace("$", "").replace(",", "").trim();
         return new BigDecimal(normalized);
+    }
+
+    @Step("Удалить товар из корзины по индексу")
+    public CartPage removeItemByIndex(int index){
+        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+        List<WebElement> rows = driver.findElements(cartRows);
+
+        if(index < 0 || index >= rows.size()){
+            throw new IllegalArgumentException("Некорректный индекс товара в корзине: " + index);
+        }
+
+        WebElement removeButton = rows.get(index).findElement(By.cssSelector("td.align_center a.btn.btn-sm.btn-default"));
+
+        removeButton.click();
+
+        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+        return this;
     }
 }

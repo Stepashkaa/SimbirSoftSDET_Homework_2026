@@ -17,6 +17,9 @@ public class HomePage extends BasePage{
     private final By search = By.cssSelector("#filter_keyword");
     private final By searchButton = By.cssSelector(".button-in-search");
 
+    private final By homePageProductCards = By.cssSelector(".thumbnails.list-inline .col-md-3");
+    private final By homePageProductNames = By.cssSelector(".thumbnails.list-inline .col-md-3 a.prdocutname");
+
     public HomePage(WebDriver driver, WebDriverWait waiter) {
         super(driver, waiter);
     }
@@ -58,5 +61,24 @@ public class HomePage extends BasePage{
         searchButtonField.click();
 
         return new SearchResultsPage(driver, waiter);
+    }
+
+    @Step("Получить количество товаров на главной странице")
+    public int getHomePageProductsCount(){
+        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(homePageProductCards));
+        return driver.findElements(homePageProductCards).size();
+    }
+
+    @Step("Открыть товар с главной страницы по индексу")
+    public ProductPage openHomePageProductByIndex(int index){
+        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(homePageProductNames));
+        List<WebElement> products = driver.findElements(homePageProductNames);
+
+        if(index < 0 || index >= products.size()){
+            throw new IllegalArgumentException("Некорректный индекс товара на главной странице: " + index);
+        }
+
+        products.get(index).click();
+        return new ProductPage(driver, waiter);
     }
 }
