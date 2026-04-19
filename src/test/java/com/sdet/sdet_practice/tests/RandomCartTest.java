@@ -53,7 +53,10 @@ public class RandomCartTest extends BaseTest{
             BigDecimal productPrice = productPage.getProductPrice();
             int quantity = getRandomQuantity();
 
-            productPage.setQuantity(quantity).addToBasket();
+            productPage
+                    .selectRequiredOptionsIfPresent()
+                    .setQuantity(quantity)
+                    .addToBasket();
             addedItems.add(new CartItem(productName, productPrice, quantity));
         }
 
@@ -65,11 +68,20 @@ public class RandomCartTest extends BaseTest{
 
         Assert.assertEquals(cartPage.getItemsCount(), 5, "В корзине должно быть 5 товаров");
 
-        cartPage.removeItemByIndex(3);
-        addedItems.remove(3);
+        List<Integer> evenIndexesToRemove = new ArrayList<>();
+        for (int i = 0; i < addedItems.size(); i++) {
+            int position = i + 1;
+            if (position % 2 == 0) {
+                evenIndexesToRemove.add(i);
+            }
+        }
 
-        cartPage.removeItemByIndex(1);
-        addedItems.remove(1);
+        Collections.reverse(evenIndexesToRemove);
+
+        for (Integer index : evenIndexesToRemove) {
+            cartPage.removeItemByIndex(index);
+            addedItems.remove((int) index);
+        }
 
         Assert.assertEquals(
                 cartPage.getItemsCount(),

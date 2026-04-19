@@ -41,7 +41,10 @@ public class SearchAndCartTest extends BaseTest{
 
         Assert.assertTrue(secondProductPage.canBeAddedProductToCart(), "Второй товар может быть добавлен в корзину");
 
-        secondProductPage.setQuantity(quantitySecondRandomProduct).addToBasket();
+        secondProductPage
+                .selectRequiredOptionsIfPresent()
+                .setQuantity(quantitySecondRandomProduct)
+                .addToBasket();
         CartItem secondItem = new CartItem(secondName, secondPrice, quantitySecondRandomProduct);
 
         resultsPage = homePage
@@ -59,7 +62,10 @@ public class SearchAndCartTest extends BaseTest{
         Assert.assertTrue(thirdProductPage.canBeAddedProductToCart(),
                 "Третий товар может быть добавлен в корзину");
 
-        thirdProductPage.setQuantity(quantityThirdRandomProduct).addToBasket();
+        thirdProductPage
+                .selectRequiredOptionsIfPresent()
+                .setQuantity(quantityThirdRandomProduct)
+                .addToBasket();
         CartItem thirdItem = new CartItem(thirdName, thirdPrice, quantityThirdRandomProduct);
 
         CartPage cartPage = thirdProductPage.openCart();
@@ -72,7 +78,7 @@ public class SearchAndCartTest extends BaseTest{
         CartItem cheapestItem = cartPage.findCheapProduct();
         int updatedQuantity = cheapestItem.getQuantity()*2;
 
-        cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity).clickUpdate();
+        cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity);
 
         if(secondItem.getName().equals(cheapestItem.getName())){
             secondItem.setQuantity(updatedQuantity);

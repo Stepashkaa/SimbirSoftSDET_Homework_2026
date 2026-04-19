@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="UI Parallel Suite" parallel="classes" thread-count="3">
+    <test name="Automation Test Store Tests">
+        <classes>
+            <class name="com.sdet.sdet_practice.tests.CategoryFilterTest"/>
+            <class name="com.sdet.sdet_practice.tests.SearchAndCartTest"/>
+            <class name="com.sdet.sdet_practice.tests.RandomCartTest"/>
+        </classes>
+    </test>
+</suite>

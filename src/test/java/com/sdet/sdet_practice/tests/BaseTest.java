@@ -9,30 +9,54 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class BaseTest {
+
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+    private static final ThreadLocal<WebDriverWait> WAITER = new ThreadLocal<>();
 
     protected WebDriver driver;
     protected WebDriverWait waiter;
 
     @BeforeMethod
     public void up(){
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        waiter = new WebDriverWait(
-                driver,
-                Duration.ofSeconds(Long.parseLong(ParameterProvider.get("explicit.wait.time"))));
+        WebDriver localDriver = new ChromeDriver();
+        localDriver.manage().window().maximize();
+
+        WebDriverWait localWaiter = new WebDriverWait(
+                localDriver,
+                Duration.ofSeconds(Long.parseLong(ParameterProvider.get("explicit.wait.time")))
+        );
+
+        DRIVER.set(localDriver);
+        WAITER.set(localWaiter);
+
+        driver = getDriver();
+        waiter = getWaiter();
+
         driver.get(ParameterProvider.get("base.url"));
     }
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(){
-        if (driver != null) {
-            driver.quit();
+        WebDriver localDriver = DRIVER.get();
+        if (localDriver != null) {
+            localDriver.quit();
+            DRIVER.remove();
         }
+        WAITER.remove();
+    }
+
+    protected WebDriver getDriver() {
+        return DRIVER.get();
+    }
+
+    protected WebDriverWait getWaiter() {
+        return WAITER.get();
     }
 
     protected int getRandomQuantity(){
-        return new Random().nextInt(3) + 1;
+        return ThreadLocalRandom.current().nextInt(1, 4);
     }
 }

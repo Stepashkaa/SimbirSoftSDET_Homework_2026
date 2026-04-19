@@ -69,26 +69,48 @@ public class CartPage extends BasePage{
     @Step("Изменить количество товара")
     public CartPage updateQuantityByProductName(String productName, int newQuantity){
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+
+        BigDecimal oldSubTotal = getSubTotal();
+
         List<WebElement> rows = driver.findElements(cartRows);
 
-        for(WebElement row : rows){
+        for (WebElement row : rows) {
             String currentName = row.findElement(itemName).getText().trim();
 
-            if(currentName.equals(productName)){
+            if (currentName.equals(productName)) {
                 WebElement quantity = row.findElement(quantityInput);
-
-                quantity.clear();
-                quantity.sendKeys(String.valueOf(newQuantity));
-                return this;
+                clearAndType(quantity, String.valueOf(newQuantity));
+                break;
             }
         }
-        throw new IllegalArgumentException("Товар не найден в корзине: " + productName);
-    }
 
-    @Step("Нажать Update в корзине")
-    public CartPage clickUpdate(){
         waiter.until(ExpectedConditions.elementToBeClickable(updateButton)).click();
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+
+        waiter.until(driver -> {
+            try {
+                for (WebElement refreshedRow : driver.findElements(cartRows)) {
+                    String refreshedName = refreshedRow.findElement(itemName).getText().trim();
+
+                    if (refreshedName.equals(productName)) {
+                        WebElement refreshedQuantity = refreshedRow.findElement(quantityInput);
+                        String actualValue = refreshedQuantity.getAttribute("value");
+                        return String.valueOf(newQuantity).equals(actualValue);
+                    }
+                }
+                return false;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        waiter.until(driver -> {
+            try {
+                return getSubTotal().compareTo(oldSubTotal) != 0;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
         return this;
     }
 
@@ -98,26 +120,27 @@ public class CartPage extends BasePage{
     }
 
     private BigDecimal getAmountFromTotalsRow(String title) {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(totalsRows));
-        List<WebElement> rows = driver.findElements(totalsRows);
+        return waiter.until(driver -> {
+            try {
+                List<WebElement> rows = driver.findElements(totalsRows);
 
-        for(WebElement row : rows){
-            List<WebElement> cells = row.findElements(By.tagName("td"));
-            if(cells.size() >= 2){
-                String leftText = cells.get(0).getText().trim();
-                String rightText = cells.get(1).getText().trim();
+                for (WebElement row : rows) {
+                    List<WebElement> cells = row.findElements(By.tagName("td"));
 
-                if(leftText.equals(title)){
-                    return parseMoney(rightText);
+                    if (cells.size() >= 2) {
+                        String leftText = cells.get(0).getText().trim();
+
+                        if (leftText.equals(title)) {
+                            String rightText = cells.get(1).getText().trim();
+                            return parseMoney(rightText);
+                        }
+                    }
                 }
+                return null;
+            } catch (Exception e) {
+                return null;
             }
-        }
-        throw new IllegalStateException("Не найдена строка итогов: " + title);
-    }
-
-    public BigDecimal parseMoney(String raw){
-        String normalized = raw.replace("$", "").replace(",", "").trim();
-        return new BigDecimal(normalized);
+        });
     }
 
     @Step("Удалить товар из корзины по индексу")
@@ -129,11 +152,15 @@ public class CartPage extends BasePage{
             throw new IllegalArgumentException("Некорректный индекс товара в корзине: " + index);
         }
 
-        WebElement removeButton = rows.get(index).findElement(By.cssSelector("td.align_center a.btn.btn-sm.btn-default"));
+        int oldSize = rows.size();
+        WebElement rowToRemove = rows.get(index);
+        WebElement removeButton = rowToRemove.findElement(By.cssSelector("td.align_center a.btn.btn-sm.btn-default"));
 
-        removeButton.click();
+        waiter.until(ExpectedConditions.elementToBeClickable(removeButton)).click();
 
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+        waiter.until(ExpectedConditions.stalenessOf(rowToRemove));
+        waiter.until(driver -> driver.findElements(cartRows).size() == oldSize - 1);
+
         return this;
     }
 }

@@ -31,6 +31,11 @@ public final class ParameterProvider {
         if(instance == null){
             instance = new ParameterProvider();
         }
-        return instance.parameters.get(key);
+
+        String value = instance.parameters.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Parameter not found: " + key);
+        }
+        return value;
     }
 }

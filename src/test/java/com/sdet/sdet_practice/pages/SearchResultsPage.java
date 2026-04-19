@@ -23,11 +23,6 @@ public class SearchResultsPage extends BasePage{
         super(driver, waiter);
     }
 
-    @Step("Получить заголовок страницы поисковой выдачи")
-    public String getPageTitle(){
-        return waiter.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText().trim();
-    }
-
     @Step("Проверить наличие сортировки на странице поисковой выдачи")
     public boolean hasSorting() {
         return !driver.findElements(sortSelect).isEmpty();
@@ -46,18 +41,6 @@ public class SearchResultsPage extends BasePage{
 
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
         return this;
-    }
-
-    @Step("Получить список названий товаров")
-    public List<String> getResultNames(){
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
-        List<WebElement> elements = driver.findElements(gridProductNames);
-
-        List<String> names = new ArrayList<>();
-        for(WebElement element : elements){
-            names.add(element.getText().trim());
-        }
-        return names;
     }
 
     @Step("Открыть первый доступный для добавления товар, начиная с индекса")
