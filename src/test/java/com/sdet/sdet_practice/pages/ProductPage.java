@@ -120,16 +120,40 @@ public class ProductPage extends BasePage{
     @Step("Добавить товар в корзину")
     public ProductPage addToBasket(){
         waiter.until(ExpectedConditions.elementToBeClickable(addToCartButton)).click();
-        waiter.until(ExpectedConditions.or(
-                ExpectedConditions.visibilityOfElementLocated(cartLink),
-                ExpectedConditions.urlContains("checkout/cart")
-        ));
+
+        waiter.until(driver -> {
+            try {
+                return driver.getCurrentUrl().contains("checkout/cart")
+                        || !driver.findElements(cartLink).isEmpty();
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
         return this;
     }
 
     @Step("Переходим в корзину")
     public CartPage openCart(){
-        waiter.until(ExpectedConditions.elementToBeClickable(cartLink)).click();
+        if (driver.getCurrentUrl().contains("checkout/cart")) {
+            return new CartPage(driver, waiter);
+        }
+
+        waiter.until(driver -> {
+            try {
+                return driver.getCurrentUrl().contains("checkout/cart")
+                        || !driver.findElements(cartLink).isEmpty();
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        if (!driver.getCurrentUrl().contains("checkout/cart")) {
+            WebElement cartElement = waiter.until(ExpectedConditions.presenceOfElementLocated(cartLink));
+            cartElement.click();
+        }
+
+        waiter.until(ExpectedConditions.urlContains("checkout/cart"));
         return new CartPage(driver, waiter);
     }
 }
