@@ -14,12 +14,12 @@ import java.util.Random;
 
 @Epic("Automation Test Store")
 @Feature("Поиск и добавление в корзину товара Shirt")
-public class SearchAndCartTest extends BaseTest{
+public class SearchAndCartTest extends BaseTest {
 
     @Test(description = "Поиск shirt, добавление 2 и 3 товара в корзину")
     @Story("Пользователь ищет товары, добавляет их в корзину и проверяет итоговую сумму")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldOpenSecondSearchResultAndPrepareForAddingToCart(){
+    public void shouldOpenSecondSearchResultAndPrepareForAddingToCart() {
         HomePage homePage = new HomePage(driver, waiter);
         SearchResultsPage resultsPage = homePage
                 .open()
@@ -80,9 +80,9 @@ public class SearchAndCartTest extends BaseTest{
 
         cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity);
 
-        if(secondItem.getName().equals(cheapestItem.getName())){
+        if(secondItem.getName().equals(cheapestItem.getName())) {
             secondItem.setQuantity(updatedQuantity);
-        } else if(thirdItem.getName().equals(cheapestItem.getName())){
+        } else if(thirdItem.getName().equals(cheapestItem.getName())) {
             thirdItem.setQuantity(updatedQuantity);
         }
         BigDecimal expectedSubTotal = secondItem.getUnitPrice()

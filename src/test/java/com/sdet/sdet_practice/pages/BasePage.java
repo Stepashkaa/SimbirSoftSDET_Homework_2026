@@ -17,12 +17,7 @@ public abstract class BasePage {
         this.waiter = waiter;
     }
 
-    protected BigDecimal parseMoney(String raw){
-        String normalized = raw.replace("$", "").replace(",", "").trim();
-        return new BigDecimal(normalized);
-    }
-
-    protected void clearAndType(WebElement element, String value){
+    protected void clearAndType(WebElement element, String value) {
         element.click();
         element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         element.sendKeys(Keys.DELETE);

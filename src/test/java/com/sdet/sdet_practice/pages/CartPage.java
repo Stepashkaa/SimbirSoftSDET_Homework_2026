@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class CartPage extends BasePage{
+import static com.sdet.sdet_practice.utilits.MoneyUtils.parseMoney;
+
+public class CartPage extends BasePage {
 
     private final By cartTitle = By.cssSelector("span.maintext");
     private final By cartRows = By.cssSelector(".cart-info.product-list table tbody tr:not(:first-child)");
@@ -29,24 +31,24 @@ public class CartPage extends BasePage{
     }
 
     @Step("Получить заголовок страницы корзины")
-    public String getPageTitle(){
+    public String getPageTitle() {
         return waiter.until(ExpectedConditions.visibilityOfElementLocated(cartTitle)).getText().trim();
     }
 
     @Step("Получить количество товаров в корзине")
-    public int getItemsCount(){
+    public int getItemsCount() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
         return driver.findElements(cartRows).size();
     }
 
     @Step("Получить список товаров из корзины")
-    public List<CartItem> getCartItems(){
+    public List<CartItem> getCartItems() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
         List<WebElement> elements = driver.findElements(cartRows);
 
         List<CartItem> cartItems = new ArrayList<>();
 
-        for(WebElement element : elements){
+        for(WebElement element : elements) {
             String name = element.findElement(itemName).getText().trim();
             String unitPriceRaw = element.findElements(By.cssSelector("td.align_right")).get(0).getText().trim();
 
@@ -60,14 +62,14 @@ public class CartPage extends BasePage{
     }
 
     @Step("Найти самый дешевый товар в корзине")
-    public CartItem findCheapProduct(){
+    public CartItem findCheapProduct() {
         return getCartItems().stream()
                 .min(Comparator.comparing(CartItem::getUnitPrice))
                 .orElseThrow(() -> new IllegalStateException("Корзина пуста"));
     }
 
     @Step("Изменить количество товара")
-    public CartPage updateQuantityByProductName(String productName, int newQuantity){
+    public CartPage updateQuantityByProductName(String productName, int newQuantity) {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
 
         BigDecimal oldSubTotal = getSubTotal();
@@ -115,7 +117,7 @@ public class CartPage extends BasePage{
     }
 
     @Step("Получить Sub-Total корзины")
-    public BigDecimal getSubTotal(){
+    public BigDecimal getSubTotal() {
         return getAmountFromTotalsRow("Sub-Total:");
     }
 
@@ -144,11 +146,11 @@ public class CartPage extends BasePage{
     }
 
     @Step("Удалить товар из корзины по индексу")
-    public CartPage removeItemByIndex(int index){
+    public CartPage removeItemByIndex(int index) {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
         List<WebElement> rows = driver.findElements(cartRows);
 
-        if(index < 0 || index >= rows.size()){
+        if(index < 0 || index >= rows.size()) {
             throw new IllegalArgumentException("Некорректный индекс товара в корзине: " + index);
         }
 

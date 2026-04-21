@@ -11,7 +11,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class ProductPage extends BasePage{
+import static com.sdet.sdet_practice.utilits.MoneyUtils.parseMoney;
+
+public class ProductPage extends BasePage {
 
     private final By productName = By.cssSelector("h1.productname .bgnone");
     private final By productPrice = By.cssSelector(".productfilneprice");
@@ -31,28 +33,28 @@ public class ProductPage extends BasePage{
     }
 
     @Step("Получить название товара")
-    public String getProductName(){
+    public String getProductName() {
         return waiter.until(ExpectedConditions.visibilityOfElementLocated(productName)).getText().trim();
     }
 
     @Step("Получить цену товара")
-    public BigDecimal getProductPrice(){
+    public BigDecimal getProductPrice() {
         WebElement element = waiter.until(ExpectedConditions.visibilityOfElementLocated(productPrice));
         return parseMoney(element.getText().trim());
     }
 
     @Step("Проверить, что товар отсутствует на складе")
-    public boolean isOutOfStock(){
+    public boolean isOutOfStock() {
         return !driver.findElements(outOfStockLabel).isEmpty();
     }
 
     @Step("Проверить, что товар можно добавить в корзину")
-    public boolean canBeAddedProductToCart(){
+    public boolean canBeAddedProductToCart() {
         return !isOutOfStock() && !driver.findElements(addToCartButton).isEmpty();
     }
 
     @Step("Выбрать обязательные параметры товара")
-    public ProductPage selectRequiredOptionsIfPresent(){
+    public ProductPage selectRequiredOptionsIfPresent() {
         waiter.until(ExpectedConditions.visibilityOfElementLocated(productForm));
 
         List<WebElement> groups = driver.findElements(formGroups);
@@ -78,7 +80,7 @@ public class ProductPage extends BasePage{
         return this;
     }
 
-    private void selectFirstAvailableOption(WebElement selectElement){
+    private void selectFirstAvailableOption(WebElement selectElement) {
         Select select = new Select(selectElement);
         List<WebElement> options = select.getOptions();
 
@@ -95,7 +97,7 @@ public class ProductPage extends BasePage{
         throw new IllegalStateException("Не найден option в select");
     }
 
-    private void selectFirstAvailableRadio(List<WebElement> radios){
+    private void selectFirstAvailableRadio(List<WebElement> radios) {
         for (WebElement radio : radios) {
             boolean disabled = radio.getAttribute("disabled") != null;
 
@@ -111,14 +113,14 @@ public class ProductPage extends BasePage{
     }
 
     @Step("Установить количество товара")
-    public ProductPage setQuantity(int quantity){
+    public ProductPage setQuantity(int quantity) {
         WebElement quant = waiter.until(ExpectedConditions.visibilityOfElementLocated(quantityField));
         clearAndType(quant, String.valueOf(quantity));
         return this;
     }
 
     @Step("Добавить товар в корзину")
-    public ProductPage addToBasket(){
+    public ProductPage addToBasket() {
         waiter.until(ExpectedConditions.elementToBeClickable(addToCartButton)).click();
 
         waiter.until(driver -> {
@@ -134,7 +136,7 @@ public class ProductPage extends BasePage{
     }
 
     @Step("Переходим в корзину")
-    public CartPage openCart(){
+    public CartPage openCart() {
         if (driver.getCurrentUrl().contains("checkout/cart")) {
             return new CartPage(driver, waiter);
         }

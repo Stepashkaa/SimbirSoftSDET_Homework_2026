@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public final class ParameterProvider {
     private static final String PARAMETERS_PATH = "configurations/conf.properties";
@@ -14,21 +15,23 @@ public final class ParameterProvider {
     private final Map<String, String> parameters;
 
     private ParameterProvider() {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PARAMETERS_PATH)){
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PARAMETERS_PATH)) {
             if (inputStream == null) {
                 throw new RuntimeException("Configuration file not found: " + PARAMETERS_PATH);
             }
-            parameters = new HashMap<>();
+
             Properties prop = new Properties();
             prop.load(inputStream);
-            prop.stringPropertyNames().forEach(key -> parameters.put(key, prop.getProperty(key)));
-        } catch (IOException e){
+
+            parameters = prop.stringPropertyNames().stream().collect(Collectors.toMap(key -> key, prop::getProperty));
+
+        } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration", e);
         }
     }
 
-    public static String get(String key){
-        if(instance == null){
+    public static String get(String key) {
+        if(instance == null) {
             instance = new ParameterProvider();
         }
 

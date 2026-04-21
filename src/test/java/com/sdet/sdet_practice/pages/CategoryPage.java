@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryPage extends BasePage{
+public class CategoryPage extends BasePage {
 
     private final By pageTitle = By.className("maintext");
     private final By sortSelect = By.id("sort");
@@ -26,7 +26,7 @@ public class CategoryPage extends BasePage{
     }
 
     @Step("Получить заголовок текущей категории")
-    public String getPageTitle(){
+    public String getPageTitle() {
         return waiter.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText().trim();
     }
 
@@ -36,13 +36,13 @@ public class CategoryPage extends BasePage{
     }
 
     @Step("Получить количество товаров в категории")
-    public int getProductsCount(){
+    public int getProductsCount() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
         return driver.findElements(gridProductCards).size();
     }
 
     @Step("Выбрать сортировку")
-    public CategoryPage sortByVisibleText(String visibleText){
+    public CategoryPage sortByVisibleText(String visibleText) {
         WebElement selectElement = waiter.until(ExpectedConditions.elementToBeClickable(sortSelect));
         new Select(selectElement).selectByVisibleText(visibleText);
 
@@ -51,24 +51,24 @@ public class CategoryPage extends BasePage{
     }
 
     @Step("Получить список названий товаров")
-    public List<String> getProductNames(){
+    public List<String> getProductNames() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
         List<WebElement> elements = driver.findElements(gridProductNames);
 
         List<String> names = new ArrayList<>();
-        for(WebElement element : elements){
+        for(WebElement element : elements) {
             names.add(element.getText().trim());
         }
         return names;
     }
 
     @Step("Получить список цен товаров")
-    public List<BigDecimal> getProductPrices(){
+    public List<BigDecimal> getProductPrices() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductPrices));
         List<WebElement> elements = driver.findElements(gridProductPrices);
 
         List<BigDecimal> prices = new ArrayList<>();
-        for(WebElement element : elements){
+        for(WebElement element : elements) {
             String rawText = element.getText().trim();
             String normalized = rawText.replace("$", "").replace(",","").trim();
             prices.add(new BigDecimal(normalized));

@@ -16,12 +16,12 @@ import java.util.Random;
 
 @Epic("Automation Test Store")
 @Feature("Проверка корзины")
-public class RandomCartTest extends BaseTest{
+public class RandomCartTest extends BaseTest {
 
     @Test(description = "Добавление 5 случайных товаров с главной страницы, удаление четных товаров из корзины и проверка итоговой суммы")
     @Story("Пользователь добавляет случайные товары в корзину, удаляет четные позиции и проверяет subtotal")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal(){
+    public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal() {
         HomePage homePage = new HomePage(driver, waiter);
 
         homePage.open();
@@ -37,15 +37,15 @@ public class RandomCartTest extends BaseTest{
 
         List<CartItem> addedItems = new ArrayList<>();
 
-        for(Integer productIndex : shuffledIndices){
-            if(addedItems.size() == 5){
+        for(Integer productIndex : shuffledIndices) {
+            if(addedItems.size() == 5) {
                 break;
             }
 
             homePage.open();
             ProductPage productPage = homePage.openHomePageProductByIndex(productIndex);
 
-            if(!productPage.canBeAddedProductToCart()){
+            if(!productPage.canBeAddedProductToCart()) {
                 continue;
             }
 
@@ -90,7 +90,7 @@ public class RandomCartTest extends BaseTest{
         );
 
         BigDecimal subTotal = BigDecimal.ZERO;
-        for(CartItem cartItem : addedItems){
+        for(CartItem cartItem : addedItems) {
             subTotal = subTotal.add(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
         }
 

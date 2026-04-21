@@ -20,7 +20,7 @@ public abstract class BaseTest {
     protected WebDriverWait waiter;
 
     @BeforeMethod
-    public void up(){
+    public void up() {
         WebDriver localDriver = new ChromeDriver();
         localDriver.manage().window().maximize();
 
@@ -39,7 +39,7 @@ public abstract class BaseTest {
     }
 
     @AfterMethod(alwaysRun = true)
-    public void tearDown(){
+    public void tearDown() {
         WebDriver localDriver = DRIVER.get();
         if (localDriver != null) {
             localDriver.quit();
@@ -56,7 +56,7 @@ public abstract class BaseTest {
         return WAITER.get();
     }
 
-    protected int getRandomQuantity(){
+    protected int getRandomQuantity() {
         return ThreadLocalRandom.current().nextInt(1, 4);
     }
 }

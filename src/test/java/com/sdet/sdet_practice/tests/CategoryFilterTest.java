@@ -14,7 +14,7 @@ import java.util.List;
 
 @Epic("Automation Test Store")
 @Feature("Фильтрация товаров в категориях")
-public class CategoryFilterTest extends BaseTest{
+public class CategoryFilterTest extends BaseTest {
 
     private CategoryPage categoryPage;
     private String categoryTitle;
@@ -45,7 +45,7 @@ public class CategoryFilterTest extends BaseTest{
     @Test(description = "Сортировка товаров по имени A-Z")
     @Story("Пользователь сортирует товары по имени по возрастанию")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByNameAscending(){
+    public void shouldSortProductsByNameAscending() {
 
         categoryPage.sortByVisibleText("Name A - Z");
 
@@ -63,7 +63,7 @@ public class CategoryFilterTest extends BaseTest{
     @Test(description = "Сортировка товаров по имени Z-A")
     @Story("Пользователь сортирует товары по имени по убыванию")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByNameDescending(){
+    public void shouldSortProductsByNameDescending() {
 
         categoryPage.sortByVisibleText("Name Z - A");
 
@@ -81,7 +81,7 @@ public class CategoryFilterTest extends BaseTest{
     @Test(description = "Сортировка товаров по цене по возрастанию")
     @Story("Пользователь сортирует товары по цене Low -> High")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByPriceAscending(){
+    public void shouldSortProductsByPriceAscending() {
 
         categoryPage.sortByVisibleText("Price Low > High");
 
@@ -99,7 +99,7 @@ public class CategoryFilterTest extends BaseTest{
     @Test(description = "Сортировка товаров по цене по убыванию")
     @Story("Пользователь сортирует товары по цене High -> Low")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByPriceDescending(){
+    public void shouldSortProductsByPriceDescending() {
 
         categoryPage.sortByVisibleText("Price High > Low");
 

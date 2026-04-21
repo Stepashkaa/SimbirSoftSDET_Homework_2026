@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 
-public class HomePage extends BasePage{
+public class HomePage extends BasePage {
 
     private final By topCategoryLinks = By.cssSelector("#categorymenu .categorymenu > li > a[href*='path=']");
 
@@ -26,7 +26,7 @@ public class HomePage extends BasePage{
     }
 
     @Step("Открыть главную страницу")
-    public HomePage open(){
+    public HomePage open() {
         driver.get(ParameterProvider.get("base.url"));
         waiter.until(ExpectedConditions.visibilityOfElementLocated(search));
         waiter.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
@@ -38,14 +38,14 @@ public class HomePage extends BasePage{
     public CategoryPage openFirstCategoryWithAtLeastFourProducts() {
         List<WebElement> categoryLinks = waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(topCategoryLinks));
 
-        for(int i = 0; i < categoryLinks.size(); i++){
+        for(int i = 0; i < categoryLinks.size(); i++) {
             categoryLinks = driver.findElements(topCategoryLinks);
             WebElement categoryLink = categoryLinks.get(i);
 
             categoryLink.click();
 
             CategoryPage categoryPage = new CategoryPage(driver, waiter);
-            if(categoryPage.hasSorting() && categoryPage.getProductsCount() >= 4){
+            if(categoryPage.hasSorting() && categoryPage.getProductsCount() >= 4) {
                 return categoryPage;
             }
 
@@ -56,7 +56,7 @@ public class HomePage extends BasePage{
     }
 
     @Step("Выполнить поиск по запросу")
-    public SearchResultsPage searchFor(String query){
+    public SearchResultsPage searchFor(String query) {
         WebElement searchField = waiter.until(ExpectedConditions.visibilityOfElementLocated(search));
         searchField.clear();
         searchField.sendKeys(query);
@@ -68,13 +68,13 @@ public class HomePage extends BasePage{
     }
 
     @Step("Получить количество товаров на главной странице")
-    public int getHomePageProductsCount(){
+    public int getHomePageProductsCount() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(homePageProductCards));
         return driver.findElements(homePageProductCards).size();
     }
 
     @Step("Открыть товар с главной страницы по индексу")
-    public ProductPage openHomePageProductByIndex(int index){
+    public ProductPage openHomePageProductByIndex(int index) {
         waiter.until(driver -> {
             List<WebElement> products = driver.findElements(homePageProductNames);
             return !products.isEmpty();
@@ -82,7 +82,7 @@ public class HomePage extends BasePage{
 
         List<WebElement> products = driver.findElements(homePageProductNames);
 
-        if(index < 0 || index >= products.size()){
+        if(index < 0 || index >= products.size()) {
             throw new IllegalArgumentException("Некорректный индекс товара на главной странице: " + index);
         }
 

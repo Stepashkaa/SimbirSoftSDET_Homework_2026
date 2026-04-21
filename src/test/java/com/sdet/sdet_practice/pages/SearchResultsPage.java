@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchResultsPage extends BasePage{
+public class SearchResultsPage extends BasePage {
 
     private final By pageTitle = By.cssSelector("span.maintext");
     private final By sortSelect = By.id("sort");
@@ -29,13 +29,13 @@ public class SearchResultsPage extends BasePage{
     }
 
     @Step("Получить количество товаров в поисковой выдаче")
-    public int getResultsCount(){
+    public int getResultsCount() {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
         return driver.findElements(gridProductCards).size();
     }
 
     @Step("Выбрать сортировку")
-    public SearchResultsPage sortByVisibleText(String visibleText){
+    public SearchResultsPage sortByVisibleText(String visibleText) {
         WebElement selectElement = waiter.until(ExpectedConditions.elementToBeClickable(sortSelect));
         new Select(selectElement).selectByVisibleText(visibleText);
 
@@ -44,20 +44,20 @@ public class SearchResultsPage extends BasePage{
     }
 
     @Step("Открыть первый доступный для добавления товар, начиная с индекса")
-    public ProductPage openFirstAvailableProduct(int startIndex){
+    public ProductPage openFirstAvailableProduct(int startIndex) {
         waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
         List<WebElement> products = driver.findElements(gridProductNames);
 
-        if(startIndex < 0 || startIndex >= products.size()){
+        if(startIndex < 0 || startIndex >= products.size()) {
             throw new IllegalArgumentException("Некорректный стартовый индекс товара: " + startIndex);
         }
 
-        for(int i = startIndex; i < products.size(); i++){
+        for(int i = startIndex; i < products.size(); i++) {
             products = driver.findElements(gridProductNames);
             products.get(i).click();
 
             ProductPage productPage = new ProductPage(driver, waiter);
-            if(productPage.canBeAddedProductToCart()){
+            if(productPage.canBeAddedProductToCart()) {
                 return productPage;
             }
 
