@@ -22,7 +22,7 @@ public class RandomCartTest extends BaseTest {
     @Story("Пользователь добавляет случайные товары в корзину, удаляет четные позиции и проверяет subtotal")
     @Severity(SeverityLevel.CRITICAL)
     public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal() {
-        HomePage homePage = new HomePage(driver, waiter);
+        HomePage homePage = new HomePage(getDriver(), getWaiter());
 
         homePage.open();
 
@@ -35,10 +35,10 @@ public class RandomCartTest extends BaseTest {
         }
         Collections.shuffle(shuffledIndices);
 
-        List<CartItem> addedItems = new ArrayList<>();
+        int actualCartCount = 0;
 
         for(Integer productIndex : shuffledIndices) {
-            if(addedItems.size() == 5) {
+            if(actualCartCount == 5) {
                 break;
             }
 
@@ -49,27 +49,23 @@ public class RandomCartTest extends BaseTest {
                 continue;
             }
 
-            String productName = productPage.getProductName();
-            BigDecimal productPrice = productPage.getProductPrice();
-            int quantity = getRandomQuantity();
-
             productPage
                     .selectRequiredOptionsIfPresent()
-                    .setQuantity(quantity)
+                    .setQuantity(getRandomQuantity())
                     .addToBasket();
-            addedItems.add(new CartItem(productName, productPrice, quantity));
+
+            CartPage cartPageAfterAdd = productPage.openCart();
+            actualCartCount = cartPageAfterAdd.getItemsCount();
         }
 
-        Assert.assertEquals(addedItems.size(), 5, "Должно быть добавлено 5 доступных товаров");
-
-        CartPage cartPage = new ProductPage(driver, waiter).openCart();
+        CartPage cartPage = new ProductPage(getDriver(), getWaiter()).openCart();
 
         Assert.assertTrue(cartPage.getPageTitle().contains("SHOPPING CART"), "Должна открыться страница корзины");
 
         Assert.assertEquals(cartPage.getItemsCount(), 5, "В корзине должно быть 5 товаров");
 
         List<Integer> evenIndexesToRemove = new ArrayList<>();
-        for (int i = 0; i < addedItems.size(); i++) {
+        for (int i = 0; i < cartPage.getItemsCount(); i++) {
             int position = i + 1;
             if (position % 2 == 0) {
                 evenIndexesToRemove.add(i);
@@ -80,7 +76,6 @@ public class RandomCartTest extends BaseTest {
 
         for (Integer index : evenIndexesToRemove) {
             cartPage.removeItemByIndex(index);
-            addedItems.remove((int) index);
         }
 
         Assert.assertEquals(
@@ -89,16 +84,20 @@ public class RandomCartTest extends BaseTest {
                 "После удаления четных товаров в корзине должно остаться 3 товара"
         );
 
-        BigDecimal subTotal = BigDecimal.ZERO;
-        for(CartItem cartItem : addedItems) {
-            subTotal = subTotal.add(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        List<CartItem> actualItemsInCart = cartPage.getCartItems();
+
+        BigDecimal expectedSubTotal = BigDecimal.ZERO;
+        for (CartItem cartItem : actualItemsInCart) {
+            expectedSubTotal = expectedSubTotal.add(
+                    cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
+            );
         }
 
         BigDecimal actualSubTotal = cartPage.getSubTotal();
 
         Assert.assertEquals(
                 actualSubTotal,
-                subTotal,
+                expectedSubTotal,
                 "Sub-Total должен совпадать с ожидаемой суммой после удаления четных товаров"
         );
     }

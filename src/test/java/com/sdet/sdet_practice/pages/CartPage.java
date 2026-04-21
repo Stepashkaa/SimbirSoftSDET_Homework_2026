@@ -5,7 +5,6 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
@@ -26,25 +25,23 @@ public class CartPage extends BasePage {
 
     private final By totalsRows = By.cssSelector("#totals_table tr");
 
-    public CartPage(WebDriver driver, WebDriverWait waiter) {
-        super(driver, waiter);
+    public CartPage(WebDriver driver, WebDriverWait waitHelper) {
+        super(driver, waitHelper);
     }
 
     @Step("Получить заголовок страницы корзины")
     public String getPageTitle() {
-        return waiter.until(ExpectedConditions.visibilityOfElementLocated(cartTitle)).getText().trim();
+        return waitHelper.visible(cartTitle).getText().trim();
     }
 
     @Step("Получить количество товаров в корзине")
     public int getItemsCount() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
-        return driver.findElements(cartRows).size();
+        return waitHelper.visibleAll(cartRows).size();
     }
 
     @Step("Получить список товаров из корзины")
     public List<CartItem> getCartItems() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
-        List<WebElement> elements = driver.findElements(cartRows);
+        List<WebElement> elements = waitHelper.visibleAll(cartRows);
 
         List<CartItem> cartItems = new ArrayList<>();
 
@@ -70,7 +67,7 @@ public class CartPage extends BasePage {
 
     @Step("Изменить количество товара")
     public CartPage updateQuantityByProductName(String productName, int newQuantity) {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
+        waitHelper.visibleAll(cartRows);
 
         BigDecimal oldSubTotal = getSubTotal();
 
@@ -86,9 +83,9 @@ public class CartPage extends BasePage {
             }
         }
 
-        waiter.until(ExpectedConditions.elementToBeClickable(updateButton)).click();
+        waitHelper.clickable(updateButton).click();
 
-        waiter.until(driver -> {
+        waitHelper.until(driver -> {
             try {
                 for (WebElement refreshedRow : driver.findElements(cartRows)) {
                     String refreshedName = refreshedRow.findElement(itemName).getText().trim();
@@ -105,7 +102,7 @@ public class CartPage extends BasePage {
             }
         });
 
-        waiter.until(driver -> {
+        waitHelper.until(driver -> {
             try {
                 return getSubTotal().compareTo(oldSubTotal) != 0;
             } catch (Exception e) {
@@ -122,7 +119,7 @@ public class CartPage extends BasePage {
     }
 
     private BigDecimal getAmountFromTotalsRow(String title) {
-        return waiter.until(driver -> {
+        return waitHelper.until(driver -> {
             try {
                 List<WebElement> rows = driver.findElements(totalsRows);
 
@@ -147,8 +144,7 @@ public class CartPage extends BasePage {
 
     @Step("Удалить товар из корзины по индексу")
     public CartPage removeItemByIndex(int index) {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(cartRows));
-        List<WebElement> rows = driver.findElements(cartRows);
+        List<WebElement> rows = waitHelper.visibleAll(cartRows);
 
         if(index < 0 || index >= rows.size()) {
             throw new IllegalArgumentException("Некорректный индекс товара в корзине: " + index);
@@ -158,10 +154,10 @@ public class CartPage extends BasePage {
         WebElement rowToRemove = rows.get(index);
         WebElement removeButton = rowToRemove.findElement(By.cssSelector("td.align_center a.btn.btn-sm.btn-default"));
 
-        waiter.until(ExpectedConditions.elementToBeClickable(removeButton)).click();
+        waitHelper.clickable(removeButton).click();
 
-        waiter.until(ExpectedConditions.stalenessOf(rowToRemove));
-        waiter.until(driver -> driver.findElements(cartRows).size() == oldSize - 1);
+        waitHelper.stale(rowToRemove);
+        waitHelper.until(driver -> driver.findElements(cartRows).size() == oldSize - 1);
 
         return this;
     }

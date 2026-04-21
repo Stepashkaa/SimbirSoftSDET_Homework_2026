@@ -4,11 +4,9 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SearchResultsPage extends BasePage {
@@ -19,8 +17,8 @@ public class SearchResultsPage extends BasePage {
     private final By gridProductCards = By.cssSelector(".thumbnails.grid .col-md-3");
     private final By gridProductNames = By.cssSelector(".thumbnails.grid .col-md-3 a.prdocutname");
 
-    public SearchResultsPage(WebDriver driver, WebDriverWait waiter) {
-        super(driver, waiter);
+    public SearchResultsPage(WebDriver driver, WebDriverWait waitHelper) {
+        super(driver, waitHelper);
     }
 
     @Step("Проверить наличие сортировки на странице поисковой выдачи")
@@ -30,23 +28,20 @@ public class SearchResultsPage extends BasePage {
 
     @Step("Получить количество товаров в поисковой выдаче")
     public int getResultsCount() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
-        return driver.findElements(gridProductCards).size();
+        return waitHelper.visibleAll(gridProductCards).size();
     }
 
     @Step("Выбрать сортировку")
-    public SearchResultsPage sortByVisibleText(String visibleText) {
-        WebElement selectElement = waiter.until(ExpectedConditions.elementToBeClickable(sortSelect));
+    public void sortByVisibleText(String visibleText) {
+        WebElement selectElement = waitHelper.clickable(sortSelect);
         new Select(selectElement).selectByVisibleText(visibleText);
 
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
-        return this;
+        waitHelper.visibleAll(gridProductCards);
     }
 
     @Step("Открыть первый доступный для добавления товар, начиная с индекса")
     public ProductPage openFirstAvailableProduct(int startIndex) {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
-        List<WebElement> products = driver.findElements(gridProductNames);
+        List<WebElement> products = waitHelper.visibleAll(gridProductNames);
 
         if(startIndex < 0 || startIndex >= products.size()) {
             throw new IllegalArgumentException("Некорректный стартовый индекс товара: " + startIndex);
@@ -54,7 +49,7 @@ public class SearchResultsPage extends BasePage {
 
         for(int i = startIndex; i < products.size(); i++) {
             products = driver.findElements(gridProductNames);
-            products.get(i).click();
+            waitHelper.clickable(products.get(i)).click();
 
             ProductPage productPage = new ProductPage(driver, waiter);
             if(productPage.canBeAddedProductToCart()) {
@@ -62,7 +57,7 @@ public class SearchResultsPage extends BasePage {
             }
 
             driver.navigate().back();
-            waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
+            waitHelper.visibleAll(gridProductNames);
         }
 
         throw new IllegalStateException("Не найден доступный для добавления товар, начиная с индекса: " + startIndex);

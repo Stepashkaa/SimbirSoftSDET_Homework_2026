@@ -5,8 +5,6 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
@@ -21,28 +19,28 @@ public class HomePage extends BasePage {
     private final By homePageProductCards = By.cssSelector(".thumbnails.list-inline .col-md-3");
     private final By homePageProductNames = By.cssSelector("a.prdocutname");
 
-    public HomePage(WebDriver driver, WebDriverWait waiter) {
-        super(driver, waiter);
+    public HomePage(WebDriver driver, WebDriverWait waitHelper) {
+        super(driver, waitHelper);
     }
 
     @Step("Открыть главную страницу")
     public HomePage open() {
         driver.get(ParameterProvider.get("base.url"));
-        waiter.until(ExpectedConditions.visibilityOfElementLocated(search));
-        waiter.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
+        waitHelper.visible(search);
+        waitHelper.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
 
         return this;
     }
 
     @Step("Проверка чтобы товаров в категории было не менее 4 и была сортировка")
     public CategoryPage openFirstCategoryWithAtLeastFourProducts() {
-        List<WebElement> categoryLinks = waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(topCategoryLinks));
+        List<WebElement> categoryLinks = waitHelper.visibleAll(topCategoryLinks);
 
         for(int i = 0; i < categoryLinks.size(); i++) {
             categoryLinks = driver.findElements(topCategoryLinks);
             WebElement categoryLink = categoryLinks.get(i);
 
-            categoryLink.click();
+            waitHelper.clickable(categoryLink).click();
 
             CategoryPage categoryPage = new CategoryPage(driver, waiter);
             if(categoryPage.hasSorting() && categoryPage.getProductsCount() >= 4) {
@@ -50,35 +48,29 @@ public class HomePage extends BasePage {
             }
 
             driver.navigate().back();
-            waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(topCategoryLinks));
+            waitHelper.visibleAll(topCategoryLinks);
         }
         throw new IllegalStateException("Не найдена категория с сортировкой и минимум 4 товарами");
     }
 
     @Step("Выполнить поиск по запросу")
     public SearchResultsPage searchFor(String query) {
-        WebElement searchField = waiter.until(ExpectedConditions.visibilityOfElementLocated(search));
-        searchField.clear();
-        searchField.sendKeys(query);
+        WebElement searchField = waitHelper.visible(search);
+        clearAndType(searchField, query);
 
-        WebElement searchButtonField = waiter.until(ExpectedConditions.elementToBeClickable(searchButton));
-        searchButtonField.click();
+        waitHelper.clickable(searchButton).click();
 
         return new SearchResultsPage(driver, waiter);
     }
 
     @Step("Получить количество товаров на главной странице")
     public int getHomePageProductsCount() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(homePageProductCards));
-        return driver.findElements(homePageProductCards).size();
+        return waitHelper.visibleAll(homePageProductCards).size();
     }
 
     @Step("Открыть товар с главной страницы по индексу")
     public ProductPage openHomePageProductByIndex(int index) {
-        waiter.until(driver -> {
-            List<WebElement> products = driver.findElements(homePageProductNames);
-            return !products.isEmpty();
-        });
+        waitHelper.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
 
         List<WebElement> products = driver.findElements(homePageProductNames);
 
@@ -86,10 +78,8 @@ public class HomePage extends BasePage {
             throw new IllegalArgumentException("Некорректный индекс товара на главной странице: " + index);
         }
 
-        WebElement product = products.get(index);
-        waiter.until(ExpectedConditions.elementToBeClickable(product)).click();
+        waitHelper.clickable(products.get(index)).click();
 
         return new ProductPage(driver, waiter);
     }
-
 }

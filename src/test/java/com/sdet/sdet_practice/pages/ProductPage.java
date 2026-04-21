@@ -4,7 +4,6 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -28,19 +27,18 @@ public class ProductPage extends BasePage {
     private final By formGroups = By.cssSelector("form#product .form-group");
     private final By requiredMark = By.cssSelector(".required");
 
-    public ProductPage(WebDriver driver, WebDriverWait waiter) {
-        super(driver, waiter);
+    public ProductPage(WebDriver driver, WebDriverWait waitHelper) {
+        super(driver, waitHelper);
     }
 
     @Step("Получить название товара")
     public String getProductName() {
-        return waiter.until(ExpectedConditions.visibilityOfElementLocated(productName)).getText().trim();
+        return waitHelper.visible(productName).getText().trim();
     }
 
     @Step("Получить цену товара")
     public BigDecimal getProductPrice() {
-        WebElement element = waiter.until(ExpectedConditions.visibilityOfElementLocated(productPrice));
-        return parseMoney(element.getText().trim());
+        return parseMoney(waitHelper.visible(productPrice).getText().trim());
     }
 
     @Step("Проверить, что товар отсутствует на складе")
@@ -55,7 +53,7 @@ public class ProductPage extends BasePage {
 
     @Step("Выбрать обязательные параметры товара")
     public ProductPage selectRequiredOptionsIfPresent() {
-        waiter.until(ExpectedConditions.visibilityOfElementLocated(productForm));
+        waitHelper.visible(productForm);
 
         List<WebElement> groups = driver.findElements(formGroups);
 
@@ -82,48 +80,47 @@ public class ProductPage extends BasePage {
 
     private void selectFirstAvailableOption(WebElement selectElement) {
         Select select = new Select(selectElement);
-        List<WebElement> options = select.getOptions();
 
-        for (WebElement option : options) {
-            String value = option.getAttribute("value");
-            boolean disabled = option.getAttribute("disabled") != null;
+        WebElement availableOption = select.getOptions().stream()
+                .filter(option -> option.getAttribute("disabled") == null)
+                .filter(option -> {
+                    String value = option.getAttribute("value");
+                    return value != null && !value.trim().isBlank();
+                })
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Не найден option в select"));
 
-            if (!disabled && value != null && !value.trim().isBlank()) {
-                select.selectByValue(value);
-                return;
-            }
-        }
-
-        throw new IllegalStateException("Не найден option в select");
+        select.selectByValue(availableOption.getAttribute("value"));
     }
 
     private void selectFirstAvailableRadio(List<WebElement> radios) {
-        for (WebElement radio : radios) {
-            boolean disabled = radio.getAttribute("disabled") != null;
-
-            if (!disabled) {
-                if (!radio.isSelected()) {
-                    radio.click();
-                }
-                return;
-            }
-        }
-
-        throw new IllegalStateException("Не найден доступный radio option среди обязательных параметров");
+        radios.stream()
+                .filter(radio -> radio.getAttribute("disabled") == null)
+                .findFirst()
+                .ifPresentOrElse(
+                        radio -> {
+                            if (!radio.isSelected()) {
+                                waitHelper.clickable(radio).click();
+                            }
+                        },
+                        () -> {
+                            throw new IllegalStateException("Не найден доступный radio option среди обязательных параметров");
+                        }
+                );
     }
 
     @Step("Установить количество товара")
     public ProductPage setQuantity(int quantity) {
-        WebElement quant = waiter.until(ExpectedConditions.visibilityOfElementLocated(quantityField));
+        WebElement quant = waitHelper.visible(quantityField);
         clearAndType(quant, String.valueOf(quantity));
         return this;
     }
 
     @Step("Добавить товар в корзину")
     public ProductPage addToBasket() {
-        waiter.until(ExpectedConditions.elementToBeClickable(addToCartButton)).click();
+        waitHelper.clickable(addToCartButton).click();
 
-        waiter.until(driver -> {
+        waitHelper.until(driver -> {
             try {
                 return driver.getCurrentUrl().contains("checkout/cart")
                         || !driver.findElements(cartLink).isEmpty();
@@ -141,7 +138,7 @@ public class ProductPage extends BasePage {
             return new CartPage(driver, waiter);
         }
 
-        waiter.until(driver -> {
+        waitHelper.until(driver -> {
             try {
                 return driver.getCurrentUrl().contains("checkout/cart")
                         || !driver.findElements(cartLink).isEmpty();
@@ -151,11 +148,11 @@ public class ProductPage extends BasePage {
         });
 
         if (!driver.getCurrentUrl().contains("checkout/cart")) {
-            WebElement cartElement = waiter.until(ExpectedConditions.presenceOfElementLocated(cartLink));
-            cartElement.click();
+            WebElement cartElement = waitHelper.visible(cartLink);
+            waitHelper.clickable(cartElement).click();
         }
 
-        waiter.until(ExpectedConditions.urlContains("checkout/cart"));
+        waitHelper.until(driver -> driver.getCurrentUrl().contains("checkout/cart"));
         return new CartPage(driver, waiter);
     }
 }

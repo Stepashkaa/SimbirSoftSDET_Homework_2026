@@ -20,7 +20,7 @@ public class SearchAndCartTest extends BaseTest {
     @Story("Пользователь ищет товары, добавляет их в корзину и проверяет итоговую сумму")
     @Severity(SeverityLevel.CRITICAL)
     public void shouldOpenSecondSearchResultAndPrepareForAddingToCart() {
-        HomePage homePage = new HomePage(driver, waiter);
+        HomePage homePage = new HomePage(getDriver(), getWaiter());
         SearchResultsPage resultsPage = homePage
                 .open()
                 .searchFor("shirt");

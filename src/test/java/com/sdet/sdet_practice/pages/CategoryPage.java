@@ -4,13 +4,14 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.sdet.sdet_practice.utilits.MoneyUtils.parseMoney;
 
 public class CategoryPage extends BasePage {
 
@@ -21,13 +22,13 @@ public class CategoryPage extends BasePage {
     private final By gridProductNames = By.cssSelector(".thumbnails.grid .col-md-3 a.prdocutname");
     private final By gridProductPrices = By.cssSelector(".thumbnails.grid .col-md-3 .price .oneprice");
 
-    public CategoryPage(WebDriver driver, WebDriverWait waiter) {
-        super(driver, waiter);
+    public CategoryPage(WebDriver driver, WebDriverWait waitHelper) {
+        super(driver, waitHelper);
     }
 
     @Step("Получить заголовок текущей категории")
     public String getPageTitle() {
-        return waiter.until(ExpectedConditions.visibilityOfElementLocated(pageTitle)).getText().trim();
+        return waitHelper.visible(pageTitle).getText().trim();
     }
 
     @Step("Проверить наличие сортировки на странице категории")
@@ -37,41 +38,32 @@ public class CategoryPage extends BasePage {
 
     @Step("Получить количество товаров в категории")
     public int getProductsCount() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
-        return driver.findElements(gridProductCards).size();
+        return waitHelper.visibleAll(gridProductCards).size();
     }
 
     @Step("Выбрать сортировку")
     public CategoryPage sortByVisibleText(String visibleText) {
-        WebElement selectElement = waiter.until(ExpectedConditions.elementToBeClickable(sortSelect));
+        WebElement selectElement = waitHelper.clickable(sortSelect);
         new Select(selectElement).selectByVisibleText(visibleText);
 
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductCards));
+        waitHelper.visibleAll(gridProductCards);
         return this;
     }
 
     @Step("Получить список названий товаров")
     public List<String> getProductNames() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductNames));
-        List<WebElement> elements = driver.findElements(gridProductNames);
-
-        List<String> names = new ArrayList<>();
-        for(WebElement element : elements) {
-            names.add(element.getText().trim());
-        }
-        return names;
+        return waitHelper.visibleAll(gridProductNames).stream()
+                .map(element -> element.getText().trim())
+                .toList();
     }
 
     @Step("Получить список цен товаров")
     public List<BigDecimal> getProductPrices() {
-        waiter.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(gridProductPrices));
-        List<WebElement> elements = driver.findElements(gridProductPrices);
+        List<WebElement> elements = waitHelper.visibleAll(gridProductPrices);
 
         List<BigDecimal> prices = new ArrayList<>();
-        for(WebElement element : elements) {
-            String rawText = element.getText().trim();
-            String normalized = rawText.replace("$", "").replace(",","").trim();
-            prices.add(new BigDecimal(normalized));
+        for (WebElement element : elements) {
+            prices.add(parseMoney(element.getText().trim()));
         }
         return prices;
     }

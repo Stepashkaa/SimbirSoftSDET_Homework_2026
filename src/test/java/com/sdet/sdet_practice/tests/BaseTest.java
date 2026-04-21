@@ -16,9 +16,6 @@ public abstract class BaseTest {
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
     private static final ThreadLocal<WebDriverWait> WAITER = new ThreadLocal<>();
 
-    protected WebDriver driver;
-    protected WebDriverWait waiter;
-
     @BeforeMethod
     public void up() {
         WebDriver localDriver = new ChromeDriver();
@@ -32,10 +29,7 @@ public abstract class BaseTest {
         DRIVER.set(localDriver);
         WAITER.set(localWaiter);
 
-        driver = getDriver();
-        waiter = getWaiter();
-
-        driver.get(ParameterProvider.get("base.url"));
+        getDriver().get(ParameterProvider.get("base.url"));
     }
 
     @AfterMethod(alwaysRun = true)
