@@ -23,29 +23,45 @@ public class RandomCartTest extends BaseTest {
     @Severity(SeverityLevel.CRITICAL)
     public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal() {
         HomePage homePage = new HomePage(getDriver(), getWaiter());
-
         homePage.open();
 
-        int totalProductsOnHomePage = homePage.getHomePageProductsCount();
-        Assert.assertTrue(totalProductsOnHomePage >= 5, "На главной странице должно быть не меньше 5 товаров");
+        addFiveRandomProductsToCart(homePage);
 
-        List<Integer> shuffledIndices = new ArrayList<>();
-        for (int i = 0; i < totalProductsOnHomePage; i++) {
-            shuffledIndices.add(i);
-        }
-        Collections.shuffle(shuffledIndices);
+        CartPage cartPage = openCart();
 
+        Assert.assertTrue(
+                cartPage.getPageTitle().contains("SHOPPING CART"),
+                "Должна открыться страница корзины"
+        );
+
+        assertCartHasItems(cartPage, 5);
+
+        removeEvenItems(cartPage);
+
+        assertCartHasItems(cartPage, 3);
+
+        assertSubtotalIsCorrect(cartPage);
+    }
+
+    private void addFiveRandomProductsToCart(HomePage homePage) {
+        int totalProducts = homePage.getHomePageProductsCount();
+        Assert.assertTrue(
+                totalProducts >= 5,
+                "На главной странице должно быть не меньше 5 товаров"
+        );
+
+        List<Integer> shuffledIndices = generateShuffledIndices(totalProducts);
         int actualCartCount = 0;
 
-        for(Integer productIndex : shuffledIndices) {
-            if(actualCartCount == 5) {
+        for (Integer productIndex : shuffledIndices) {
+            if (actualCartCount == 5) {
                 break;
             }
 
             homePage.open();
             ProductPage productPage = homePage.openHomePageProductByIndex(productIndex);
 
-            if(!productPage.canBeAddedProductToCart()) {
+            if (!productPage.canBeAddedProductToCart()) {
                 continue;
             }
 
@@ -54,51 +70,75 @@ public class RandomCartTest extends BaseTest {
                     .setQuantity(getRandomQuantity())
                     .addToBasket();
 
-            CartPage cartPageAfterAdd = productPage.openCart();
-            actualCartCount = cartPageAfterAdd.getItemsCount();
+            actualCartCount = productPage.openCart().getItemsCount();
         }
 
-        CartPage cartPage = new ProductPage(getDriver(), getWaiter()).openCart();
+        Assert.assertEquals(
+                actualCartCount,
+                5,
+                "Должно быть фактически добавлено 5 товаров в корзину"
+        );
+    }
 
-        Assert.assertTrue(cartPage.getPageTitle().contains("SHOPPING CART"), "Должна открыться страница корзины");
+    private List<Integer> generateShuffledIndices(int size){
+        List<Integer> indices = new ArrayList<>();
 
-        Assert.assertEquals(cartPage.getItemsCount(), 5, "В корзине должно быть 5 товаров");
+        for (int i = 0; i < size; i++) {
+            indices.add(i);
+        }
 
-        List<Integer> evenIndexesToRemove = new ArrayList<>();
-        for (int i = 0; i < cartPage.getItemsCount(); i++) {
+        Collections.shuffle(indices);
+        return indices;
+    }
+
+    private CartPage openCart() {
+        return new ProductPage(getDriver(), getWaiter()).openCart();
+    }
+
+    private void assertCartHasItems(CartPage cartPage, int expected) {
+        Assert.assertEquals(
+                cartPage.getItemsCount(),
+                expected,
+                "В корзине должно быть " + expected + " товаров"
+        );
+    }
+
+    private void removeEvenItems(CartPage cartPage) {
+        List<Integer> indexes = getEvenIndexes(cartPage.getItemsCount());
+
+        Collections.reverse(indexes);
+
+        for (Integer index : indexes) {
+            cartPage.removeItemByIndex(index);
+        }
+    }
+
+    private List<Integer> getEvenIndexes(int size) {
+        List<Integer> indexes = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
             int position = i + 1;
             if (position % 2 == 0) {
-                evenIndexesToRemove.add(i);
+                indexes.add(i);
             }
         }
 
-        Collections.reverse(evenIndexesToRemove);
+        return indexes;
+    }
 
-        for (Integer index : evenIndexesToRemove) {
-            cartPage.removeItemByIndex(index);
-        }
+    private void assertSubtotalIsCorrect(CartPage cartPage) {
+        List<CartItem> items = cartPage.getCartItems();
 
-        Assert.assertEquals(
-                cartPage.getItemsCount(),
-                3,
-                "После удаления четных товаров в корзине должно остаться 3 товара"
-        );
+        BigDecimal expected = items.stream()
+                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        List<CartItem> actualItemsInCart = cartPage.getCartItems();
-
-        BigDecimal expectedSubTotal = BigDecimal.ZERO;
-        for (CartItem cartItem : actualItemsInCart) {
-            expectedSubTotal = expectedSubTotal.add(
-                    cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
-            );
-        }
-
-        BigDecimal actualSubTotal = cartPage.getSubTotal();
+        BigDecimal actual = cartPage.getSubTotal();
 
         Assert.assertEquals(
-                actualSubTotal,
-                expectedSubTotal,
-                "Sub-Total должен совпадать с ожидаемой суммой после удаления четных товаров"
+                actual,
+                expected,
+                "Sub-Total должен совпадать"
         );
     }
 }

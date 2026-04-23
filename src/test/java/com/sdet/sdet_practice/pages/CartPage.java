@@ -3,6 +3,7 @@ package com.sdet.sdet_practice.pages;
 import com.sdet.sdet_practice.models.CartItem;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -97,7 +98,7 @@ public class CartPage extends BasePage {
                     }
                 }
                 return false;
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException e) {
                 return false;
             }
         });
@@ -105,7 +106,7 @@ public class CartPage extends BasePage {
         waitHelper.until(driver -> {
             try {
                 return getSubTotal().compareTo(oldSubTotal) != 0;
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException e) {
                 return false;
             }
         });
@@ -136,7 +137,7 @@ public class CartPage extends BasePage {
                     }
                 }
                 return null;
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException e) {
                 return null;
             }
         });

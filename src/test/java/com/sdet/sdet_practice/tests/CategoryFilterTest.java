@@ -2,9 +2,14 @@ package com.sdet.sdet_practice.tests;
 
 import com.sdet.sdet_practice.pages.CategoryPage;
 import com.sdet.sdet_practice.pages.HomePage;
-import io.qameta.allure.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
@@ -42,76 +47,56 @@ public class CategoryFilterTest extends BaseTest {
         );
     }
 
-    @Test(description = "Сортировка товаров по имени A-Z")
-    @Story("Пользователь сортирует товары по имени по возрастанию")
+    @Test(dataProvider = "sortingData", description = "Проверка сортировки товаров")
+    @Story("Пользователь проверяет сортировку товаров")
     @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByNameAscending() {
+    public void shouldSortProducts(String sortOption, boolean ascending) {
 
-        categoryPage.sortByVisibleText("Name A - Z");
+        categoryPage.sortByVisibleText(sortOption);
 
-        List<String> actualNames = categoryPage.getProductNames();
-        List<String> expectedNames = new ArrayList<>(actualNames);
+        if (sortOption.contains("Name")) {
 
-        expectedNames.sort(String.CASE_INSENSITIVE_ORDER);
-        Assert.assertEquals(
-                actualNames,
-                expectedNames,
-                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по имени по возрастанию"
-        );
+            List<String> actual = categoryPage.getProductNames();
+            List<String> expected = new ArrayList<>(actual);
+
+            expected.sort(
+                    ascending
+                            ? String.CASE_INSENSITIVE_ORDER
+                            : String.CASE_INSENSITIVE_ORDER.reversed()
+            );
+
+            Assert.assertEquals(
+                    actual,
+                    expected,
+                    "Товары в категории '" + categoryTitle + "' должны быть отсортированы по имени"
+            );
+
+        } else {
+
+            List<BigDecimal> actual = categoryPage.getProductPrices();
+            List<BigDecimal> expected = new ArrayList<>(actual);
+
+            expected.sort(
+                    ascending
+                            ? Comparator.naturalOrder()
+                            : Comparator.reverseOrder()
+            );
+
+            Assert.assertEquals(
+                    actual,
+                    expected,
+                    "Товары в категории '" + categoryTitle + "' должны быть отсортированы по цене"
+            );
+        }
     }
 
-    @Test(description = "Сортировка товаров по имени Z-A")
-    @Story("Пользователь сортирует товары по имени по убыванию")
-    @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByNameDescending() {
-
-        categoryPage.sortByVisibleText("Name Z - A");
-
-        List<String> actualNames = categoryPage.getProductNames();
-        List<String> expectedNames = new ArrayList<>(actualNames);
-
-        expectedNames.sort(String.CASE_INSENSITIVE_ORDER.reversed());
-        Assert.assertEquals(
-                actualNames,
-                expectedNames,
-                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по имени по убыванию"
-        );
+    @DataProvider(name = "sortingData")
+    public Object[][] sortingData() {
+        return new Object[][]{
+                {"Name A - Z", true},
+                {"Name Z - A", false},
+                {"Price Low > High", true},
+                {"Price High > Low", false}
+        };
     }
-
-    @Test(description = "Сортировка товаров по цене по возрастанию")
-    @Story("Пользователь сортирует товары по цене Low -> High")
-    @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByPriceAscending() {
-
-        categoryPage.sortByVisibleText("Price Low > High");
-
-        List<BigDecimal> actualPrices = categoryPage.getProductPrices();
-        List<BigDecimal> expectedPrices  = new ArrayList<>(actualPrices);
-
-        expectedPrices.sort(Comparator.naturalOrder());
-        Assert.assertEquals(
-                actualPrices,
-                expectedPrices,
-                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по цене по возрастанию"
-        );
-    }
-
-    @Test(description = "Сортировка товаров по цене по убыванию")
-    @Story("Пользователь сортирует товары по цене High -> Low")
-    @Severity(SeverityLevel.CRITICAL)
-    public void shouldSortProductsByPriceDescending() {
-
-        categoryPage.sortByVisibleText("Price High > Low");
-
-        List<BigDecimal> actualPrices = categoryPage.getProductPrices();
-        List<BigDecimal> expectedPrices  = new ArrayList<>(actualPrices);
-
-        expectedPrices.sort(Comparator.reverseOrder());
-        Assert.assertEquals(
-                actualPrices,
-                expectedPrices,
-                "Товары в категории '" + categoryTitle + "' должны быть отсортированы по цене по убыванию"
-        );
-    }
-
 }

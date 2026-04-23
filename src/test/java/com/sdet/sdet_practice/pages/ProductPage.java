@@ -2,6 +2,7 @@ package com.sdet.sdet_practice.pages;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -124,7 +125,7 @@ public class ProductPage extends BasePage {
             try {
                 return driver.getCurrentUrl().contains("checkout/cart")
                         || !driver.findElements(cartLink).isEmpty();
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException e) {
                 return false;
             }
         });
@@ -142,7 +143,7 @@ public class ProductPage extends BasePage {
             try {
                 return driver.getCurrentUrl().contains("checkout/cart")
                         || !driver.findElements(cartLink).isEmpty();
-            } catch (Exception e) {
+            } catch (StaleElementReferenceException e) {
                 return false;
             }
         });
