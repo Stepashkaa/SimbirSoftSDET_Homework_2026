@@ -5,12 +5,16 @@ import com.sdet.sdet_practice.pages.CartPage;
 import com.sdet.sdet_practice.pages.HomePage;
 import com.sdet.sdet_practice.pages.ProductPage;
 import com.sdet.sdet_practice.pages.SearchResultsPage;
-import io.qameta.allure.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
-import java.util.Random;
+import java.util.List;
 
 @Epic("Automation Test Store")
 @Feature("Поиск и добавление в корзину товара Shirt")
@@ -31,44 +35,10 @@ public class SearchAndCartTest extends BaseTest {
         Assert.assertTrue(resultsPage.getResultsCount() >= 3,
                 "На странице должно быть более 3 товаров");
 
-        resultsPage.sortByVisibleText("Name A - Z");
+        CartItem secondItem = addProductFromSearchResults(homePage, 1);
+        CartItem thirdItem = addProductFromSearchResults(homePage, 2);
 
-        int quantitySecondRandomProduct = getRandomQuantity();
-        ProductPage secondProductPage  = resultsPage.openFirstAvailableProduct(1);
-
-        String secondName = secondProductPage.getProductName();
-        BigDecimal secondPrice = secondProductPage.getProductPrice();
-
-        Assert.assertTrue(secondProductPage.canBeAddedProductToCart(), "Второй товар может быть добавлен в корзину");
-
-        secondProductPage
-                .selectRequiredOptionsIfPresent()
-                .setQuantity(quantitySecondRandomProduct)
-                .addToBasket();
-        CartItem secondItem = new CartItem(secondName, secondPrice, quantitySecondRandomProduct);
-
-        resultsPage = homePage
-                .open()
-                .searchFor("shirt");
-
-        resultsPage.sortByVisibleText("Name A - Z");
-
-        int quantityThirdRandomProduct = getRandomQuantity();
-        ProductPage thirdProductPage = resultsPage.openFirstAvailableProduct(2);
-
-        String thirdName = thirdProductPage.getProductName();
-        BigDecimal thirdPrice = thirdProductPage.getProductPrice();
-
-        Assert.assertTrue(thirdProductPage.canBeAddedProductToCart(),
-                "Третий товар может быть добавлен в корзину");
-
-        thirdProductPage
-                .selectRequiredOptionsIfPresent()
-                .setQuantity(quantityThirdRandomProduct)
-                .addToBasket();
-        CartItem thirdItem = new CartItem(thirdName, thirdPrice, quantityThirdRandomProduct);
-
-        CartPage cartPage = thirdProductPage.openCart();
+        CartPage cartPage = new ProductPage(getDriver(), getWaiter()).openCart();
 
         Assert.assertTrue(cartPage.getPageTitle().contains("SHOPPING CART"),
                 "Должна открыться страница корзины");
@@ -76,27 +46,57 @@ public class SearchAndCartTest extends BaseTest {
                 "В корзине должно быть 2 товара");
 
         CartItem cheapestItem = cartPage.findCheapProduct();
-        int updatedQuantity = cheapestItem.getQuantity()*2;
+        int updatedQuantity = cheapestItem.getQuantity() * 2;
 
         cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity);
+        updateItemQuantityByName(List.of(secondItem, thirdItem), cheapestItem.getName(), updatedQuantity);
 
-        if(secondItem.getName().equals(cheapestItem.getName())) {
-            secondItem.setQuantity(updatedQuantity);
-        } else if(thirdItem.getName().equals(cheapestItem.getName())) {
-            thirdItem.setQuantity(updatedQuantity);
-        }
-        BigDecimal expectedSubTotal = secondItem.getUnitPrice()
-                .multiply(BigDecimal.valueOf(secondItem.getQuantity()))
-                .add(
-                        thirdItem.getUnitPrice()
-                                .multiply(BigDecimal.valueOf(thirdItem.getQuantity()))
-                );
-
+        BigDecimal expectedSubTotal = calculateExpectedSubtotal(List.of(secondItem, thirdItem));
         BigDecimal actualSubTotal = cartPage.getSubTotal();
+
         Assert.assertEquals(
                 actualSubTotal,
                 expectedSubTotal,
                 "Sub-Total корзины должен совпадать с ожидаемой суммой"
         );
+    }
+
+    private CartItem addProductFromSearchResults(HomePage homePage, int startIndex) {
+        SearchResultsPage resultsPage = homePage
+                .open()
+                .searchFor("shirt");
+
+        resultsPage.sortByVisibleText("Name A - Z");
+
+        ProductPage productPage = resultsPage.openFirstAvailableProduct(startIndex);
+
+        Assert.assertTrue(
+                productPage.canBeAddedProductToCart(),
+                "Товар должен быть доступен для добавления в корзину"
+        );
+
+        String name = productPage.getProductName();
+        BigDecimal price = productPage.getProductPrice();
+        int quantity = getRandomQuantity();
+
+        productPage
+                .selectRequiredOptionsIfPresent()
+                .setQuantity(quantity)
+                .addToBasket();
+
+        return new CartItem(name, price, quantity);
+    }
+
+    private void updateItemQuantityByName(List<CartItem> items, String productName, int newQuantity) {
+        items.stream()
+                .filter(item -> item.getName().equals(productName))
+                .findFirst()
+                .ifPresent(item -> item.setQuantity(newQuantity));
+    }
+
+    private BigDecimal calculateExpectedSubtotal(List<CartItem> items) {
+        return items.stream()
+                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

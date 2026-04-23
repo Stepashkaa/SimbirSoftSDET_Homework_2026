@@ -4,7 +4,11 @@ import com.sdet.sdet_practice.models.CartItem;
 import com.sdet.sdet_practice.pages.CartPage;
 import com.sdet.sdet_practice.pages.HomePage;
 import com.sdet.sdet_practice.pages.ProductPage;
-import io.qameta.allure.*;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
