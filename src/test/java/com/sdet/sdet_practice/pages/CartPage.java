@@ -25,9 +25,11 @@ public class CartPage extends BasePage {
     private final By quantityInput = By.cssSelector("input[id^='cart_quantity']");
 
     private final By totalsRows = By.cssSelector("#totals_table tr");
+    private static final String CART_URL_PART = "checkout/cart";
 
     public CartPage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
+        waitForPageLoaded();
     }
 
     @Step("Получить заголовок страницы корзины")
@@ -149,5 +151,9 @@ public class CartPage extends BasePage {
         waitHelper.until(driver -> driver.findElements(cartRows).size() == oldSize - 1);
 
         return this;
+    }
+
+    private void waitForPageLoaded() {
+        waitHelper.until(driver -> driver.getCurrentUrl().contains(CART_URL_PART));
     }
 }

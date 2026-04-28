@@ -7,7 +7,6 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -119,42 +118,15 @@ public class ProductPage extends BasePage {
     }
 
     @Step("Добавить товар в корзину")
-    public ProductPage addToBasket() {
+    public CartPage addToBasket() {
         waitHelper.clickable(addToCartButton).click();
 
-        waitHelper.until(driver -> {
-            try {
-                return driver.getCurrentUrl().contains("checkout/cart")
-                        || !driver.findElements(cartLink).isEmpty();
-            } catch (StaleElementReferenceException e) {
-                return false;
-            }
-        });
-
-        return this;
+        return new CartPage(driver, waitHelper);
     }
 
     @Step("Переходим в корзину")
     public CartPage openCart() {
-        if (driver.getCurrentUrl().contains("checkout/cart")) {
-            return new CartPage(driver, waitHelper);
-        }
-
-        waitHelper.until(driver -> {
-            try {
-                return driver.getCurrentUrl().contains("checkout/cart")
-                        || !driver.findElements(cartLink).isEmpty();
-            } catch (StaleElementReferenceException e) {
-                return false;
-            }
-        });
-
-        if (!driver.getCurrentUrl().contains("checkout/cart")) {
-            WebElement cartElement = waitHelper.visible(cartLink);
-            waitHelper.clickable(cartElement).click();
-        }
-
-        waitHelper.until(driver -> driver.getCurrentUrl().contains("checkout/cart"));
+        waitHelper.clickable(cartLink).click();
         return new CartPage(driver, waitHelper);
     }
 }
