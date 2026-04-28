@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 @Epic("Automation Test Store")
 @Feature("Проверка корзины")
@@ -29,9 +28,8 @@ public class RandomCartTest extends BaseTest {
         HomePage homePage = new HomePage(getDriver(), getWaitHelper());
         homePage.open();
 
-        addFiveRandomProductsToCart(homePage);
+        CartPage cartPage = addFiveRandomProductsToCart(homePage);
 
-        CartPage cartPage = openCart();
 
         Assert.assertTrue(
                 cartPage.getPageTitle().contains("SHOPPING CART"),
@@ -47,18 +45,21 @@ public class RandomCartTest extends BaseTest {
         assertSubtotalIsCorrect(cartPage);
     }
 
-    private void addFiveRandomProductsToCart(HomePage homePage) {
+    private CartPage addFiveRandomProductsToCart(HomePage homePage) {
+
         int totalProducts = homePage.getHomePageProductsCount();
+
         Assert.assertTrue(
                 totalProducts >= 5,
                 "На главной странице должно быть не меньше 5 товаров"
         );
 
         List<Integer> shuffledIndices = generateShuffledIndices(totalProducts);
-        int actualCartCount = 0;
+
+        CartPage cartPage = null;
 
         for (Integer productIndex : shuffledIndices) {
-            if (actualCartCount == 5) {
+            if (cartPage != null && cartPage.getItemsCount() == 5) {
                 break;
             }
 
@@ -69,19 +70,13 @@ public class RandomCartTest extends BaseTest {
                 continue;
             }
 
-            productPage
+            cartPage = productPage
                     .selectRequiredOptionsIfPresent()
                     .setQuantity(getRandomQuantity())
                     .addToBasket();
 
-            actualCartCount = productPage.openCart().getItemsCount();
         }
-
-        Assert.assertEquals(
-                actualCartCount,
-                5,
-                "Должно быть фактически добавлено 5 товаров в корзину"
-        );
+        return cartPage;
     }
 
     private List<Integer> generateShuffledIndices(int size){
@@ -93,10 +88,6 @@ public class RandomCartTest extends BaseTest {
 
         Collections.shuffle(indices);
         return indices;
-    }
-
-    private CartPage openCart() {
-        return new ProductPage(getDriver(), getWaitHelper()).openCart();
     }
 
     private void assertCartHasItems(CartPage cartPage, int expected) {
