@@ -23,8 +23,6 @@ public class ProductPage extends BasePage {
     private final By outOfStockLabel = By.cssSelector(".productpagecart .nostock");
     private final By addToCartButton = By.cssSelector(".productpagecart a.cart");
 
-    private final By cartLink = By.cssSelector("a[href*='checkout/cart']");
-
     private final By formGroups = By.cssSelector("form#product .form-group");
     private final By requiredMark = By.cssSelector(".required");
 
@@ -121,12 +119,10 @@ public class ProductPage extends BasePage {
     public CartPage addToBasket() {
         waitHelper.clickable(addToCartButton).click();
 
-        return new CartPage(driver, waitHelper);
-    }
+        waitHelper.until(driver ->
+                driver.getCurrentUrl().contains("checkout/cart")
+        );
 
-    @Step("Переходим в корзину")
-    public CartPage openCart() {
-        waitHelper.clickable(cartLink).click();
         return new CartPage(driver, waitHelper);
     }
 }

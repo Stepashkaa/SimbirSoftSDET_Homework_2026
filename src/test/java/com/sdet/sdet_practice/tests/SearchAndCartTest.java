@@ -20,11 +20,14 @@ import java.util.List;
 @Feature("Поиск и добавление в корзину товара Shirt")
 public class SearchAndCartTest extends BaseTest {
 
+    private CartPage cartPage;
+
     @Test(description = "Поиск shirt, добавление 2 и 3 товара в корзину")
     @Story("Пользователь ищет товары, добавляет их в корзину и проверяет итоговую сумму")
     @Severity(SeverityLevel.CRITICAL)
     public void shouldOpenSecondSearchResultAndPrepareForAddingToCart() {
         HomePage homePage = new HomePage(getDriver(), getWaitHelper());
+
         SearchResultsPage resultsPage = homePage
                 .open()
                 .searchFor("shirt");
@@ -38,10 +41,9 @@ public class SearchAndCartTest extends BaseTest {
         CartItem secondItem = addProductFromSearchResults(homePage, 1);
         CartItem thirdItem = addProductFromSearchResults(homePage, 2);
 
-        CartPage cartPage = new ProductPage(getDriver(), getWaitHelper()).openCart();
-
         Assert.assertTrue(cartPage.getPageTitle().contains("SHOPPING CART"),
                 "Должна открыться страница корзины");
+
         Assert.assertEquals(cartPage.getItemsCount(), 2,
                 "В корзине должно быть 2 товара");
 
@@ -50,7 +52,12 @@ public class SearchAndCartTest extends BaseTest {
 
         cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity);
         cartPage.waitForQuantityUpdated(cheapestItem.getName(), updatedQuantity);
-        updateItemQuantityByName(List.of(secondItem, thirdItem), cheapestItem.getName(), updatedQuantity);
+
+        updateItemQuantityByName(
+                List.of(secondItem, thirdItem),
+                cheapestItem.getName(),
+                updatedQuantity
+        );
 
         BigDecimal expectedSubTotal = calculateExpectedSubtotal(List.of(secondItem, thirdItem));
         BigDecimal actualSubTotal = cartPage.getSubTotal();
@@ -80,7 +87,7 @@ public class SearchAndCartTest extends BaseTest {
         BigDecimal price = productPage.getProductPrice();
         int quantity = getRandomQuantity();
 
-        productPage
+        cartPage = productPage
                 .selectRequiredOptionsIfPresent()
                 .setQuantity(quantity)
                 .addToBasket();
