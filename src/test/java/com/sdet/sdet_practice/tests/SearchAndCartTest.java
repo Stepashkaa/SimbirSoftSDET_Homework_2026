@@ -49,6 +49,7 @@ public class SearchAndCartTest extends BaseTest {
         int updatedQuantity = cheapestItem.getQuantity() * 2;
 
         cartPage.updateQuantityByProductName(cheapestItem.getName(), updatedQuantity);
+        cartPage.waitForQuantityUpdated(cheapestItem.getName(), updatedQuantity);
         updateItemQuantityByName(List.of(secondItem, thirdItem), cheapestItem.getName(), updatedQuantity);
 
         BigDecimal expectedSubTotal = calculateExpectedSubtotal(List.of(secondItem, thirdItem));

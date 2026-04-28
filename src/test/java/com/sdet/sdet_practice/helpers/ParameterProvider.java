@@ -17,7 +17,7 @@ public final class ParameterProvider {
     private ParameterProvider() {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PARAMETERS_PATH)) {
             if (inputStream == null) {
-                throw new RuntimeException("Configuration file not found: " + PARAMETERS_PATH);
+                throw new RuntimeException("Файл конфигурации не найден: " + PARAMETERS_PATH);
             }
 
             Properties prop = new Properties();
@@ -26,7 +26,7 @@ public final class ParameterProvider {
             parameters = prop.stringPropertyNames().stream().collect(Collectors.toMap(key -> key, prop::getProperty));
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load configuration", e);
+            throw new RuntimeException("Не удалось загрузить конфигурацию", e);
         }
     }
 
@@ -37,7 +37,7 @@ public final class ParameterProvider {
 
         String value = instance.parameters.get(key);
         if (value == null) {
-            throw new IllegalArgumentException("Parameter not found: " + key);
+            throw new IllegalArgumentException("Параметр не найден: " + key);
         }
         return value;
     }

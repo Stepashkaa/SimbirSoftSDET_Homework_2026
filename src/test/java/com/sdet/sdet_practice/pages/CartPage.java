@@ -7,14 +7,13 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.sdet.sdet_practice.utilits.MoneyUtils.parseMoney;
+import com.sdet.sdet_practice.utilits.MoneyUtils;
 
 public class CartPage extends BasePage {
 
@@ -51,7 +50,7 @@ public class CartPage extends BasePage {
             String name = element.findElement(itemName).getText().trim();
             String unitPriceRaw = element.findElements(By.cssSelector("td.align_right")).get(0).getText().trim();
 
-            BigDecimal unitPrice = parseMoney(unitPriceRaw);
+            BigDecimal unitPrice =  MoneyUtils.parseMoney(unitPriceRaw);
             WebElement quantityElement = element.findElement(quantityInput);
             int quantity = Integer.parseInt(quantityElement.getAttribute("value").trim());
 
@@ -69,11 +68,7 @@ public class CartPage extends BasePage {
 
     @Step("Изменить количество товара")
     public CartPage updateQuantityByProductName(String productName, int newQuantity) {
-        waitHelper.visibleAll(cartRows);
-
-        BigDecimal oldSubTotal = getSubTotal();
-
-        List<WebElement> rows = driver.findElements(cartRows);
+        List<WebElement> rows = waitHelper.visibleAll(cartRows);
 
         for (WebElement row : rows) {
             String currentName = row.findElement(itemName).getText().trim();
@@ -86,16 +81,18 @@ public class CartPage extends BasePage {
         }
 
         waitHelper.clickable(updateButton).click();
+        return this;
+    }
 
+    public void waitForQuantityUpdated(String productName, int expectedQuantity) {
         waitHelper.until(driver -> {
             try {
-                for (WebElement refreshedRow : driver.findElements(cartRows)) {
-                    String refreshedName = refreshedRow.findElement(itemName).getText().trim();
+                for (WebElement row : driver.findElements(cartRows)) {
+                    String name = row.findElement(itemName).getText().trim();
 
-                    if (refreshedName.equals(productName)) {
-                        WebElement refreshedQuantity = refreshedRow.findElement(quantityInput);
-                        String actualValue = refreshedQuantity.getAttribute("value");
-                        return String.valueOf(newQuantity).equals(actualValue);
+                    if (name.equals(productName)) {
+                        String actual = row.findElement(quantityInput).getAttribute("value");
+                        return String.valueOf(expectedQuantity).equals(actual);
                     }
                 }
                 return false;
@@ -103,16 +100,6 @@ public class CartPage extends BasePage {
                 return false;
             }
         });
-
-        waitHelper.until(driver -> {
-            try {
-                return getSubTotal().compareTo(oldSubTotal) != 0;
-            } catch (StaleElementReferenceException e) {
-                return false;
-            }
-        });
-
-        return this;
     }
 
     @Step("Получить Sub-Total корзины")
@@ -133,7 +120,7 @@ public class CartPage extends BasePage {
 
                         if (leftText.equals(title)) {
                             String rightText = cells.get(1).getText().trim();
-                            return parseMoney(rightText);
+                            return  MoneyUtils.parseMoney(rightText);
                         }
                     }
                 }
