@@ -26,7 +26,7 @@ public class HomePage extends BasePage {
     public HomePage open() {
         driver.get(ParameterProvider.get("base.url"));
         waitHelper.visible(search);
-        waitHelper.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
+        waitHelper.visibleAllNonEmpty(homePageProductNames);
 
         return this;
     }
@@ -36,7 +36,7 @@ public class HomePage extends BasePage {
         List<WebElement> categoryLinks = waitHelper.visibleAll(topCategoryLinks);
 
         for(int i = 0; i < categoryLinks.size(); i++) {
-            categoryLinks = driver.findElements(topCategoryLinks);
+            categoryLinks = waitHelper.visibleAll(topCategoryLinks);
             WebElement categoryLink = categoryLinks.get(i);
 
             waitHelper.clickable(categoryLink).click();
@@ -46,8 +46,7 @@ public class HomePage extends BasePage {
                 return categoryPage;
             }
 
-            driver.navigate().back();
-            waitHelper.visibleAll(topCategoryLinks);
+            open();
         }
         throw new IllegalStateException("Не найдена категория с сортировкой и минимум 4 товарами");
     }
@@ -69,9 +68,8 @@ public class HomePage extends BasePage {
 
     @Step("Открыть товар с главной страницы по индексу")
     public ProductPage openHomePageProductByIndex(int index) {
-        waitHelper.until(driver -> !driver.findElements(homePageProductNames).isEmpty());
 
-        List<WebElement> products = driver.findElements(homePageProductNames);
+        List<WebElement> products = waitHelper.visibleAllNonEmpty(homePageProductNames);
 
         if(index < 0 || index >= products.size()) {
             throw new IllegalArgumentException("Некорректный индекс товара на главной странице: " + index);

@@ -1,18 +1,15 @@
 package com.sdet.sdet_practice.pages;
 
 import com.sdet.sdet_practice.helpers.WaitHelper;
+import com.sdet.sdet_practice.utilits.MoneyUtils;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.sdet.sdet_practice.utilits.MoneyUtils.parseMoney;
 
 public class CategoryPage extends BasePage {
 
@@ -60,12 +57,9 @@ public class CategoryPage extends BasePage {
 
     @Step("Получить список цен товаров")
     public List<BigDecimal> getProductPrices() {
-        List<WebElement> elements = waitHelper.visibleAll(gridProductPrices);
-
-        List<BigDecimal> prices = new ArrayList<>();
-        for (WebElement element : elements) {
-            prices.add(parseMoney(element.getText().trim()));
-        }
-        return prices;
+        return waitHelper.visibleAll(gridProductPrices).stream()
+                .map(element -> element.getText().trim())
+                .map(MoneyUtils::parseMoney)
+                .toList();
     }
 }

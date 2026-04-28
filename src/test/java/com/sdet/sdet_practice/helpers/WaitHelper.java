@@ -42,4 +42,11 @@ public class WaitHelper {
     public <T> T until(Function<WebDriver, T> condition) {
         return waiter.until(condition);
     }
+
+    public List<WebElement> visibleAllNonEmpty(By locator) {
+        return waiter.until(driver -> {
+            List<WebElement> elements = driver.findElements(locator);
+            return elements.isEmpty() ? null : elements;
+        });
+    }
 }
