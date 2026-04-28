@@ -26,7 +26,7 @@ public class RandomCartTest extends BaseTest {
     @Story("Пользователь добавляет случайные товары в корзину, удаляет четные позиции и проверяет subtotal")
     @Severity(SeverityLevel.CRITICAL)
     public void shouldAddFiveRandomProductsRemoveAndValidateSubtotal() {
-        HomePage homePage = new HomePage(getDriver(), getWaiter());
+        HomePage homePage = new HomePage(getDriver(), getWaitHelper());
         homePage.open();
 
         addFiveRandomProductsToCart(homePage);
@@ -96,7 +96,7 @@ public class RandomCartTest extends BaseTest {
     }
 
     private CartPage openCart() {
-        return new ProductPage(getDriver(), getWaiter()).openCart();
+        return new ProductPage(getDriver(), getWaitHelper()).openCart();
     }
 
     private void assertCartHasItems(CartPage cartPage, int expected) {

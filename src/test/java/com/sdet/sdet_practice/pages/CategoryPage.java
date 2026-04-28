@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import com.sdet.sdet_practice.helpers.WaitHelper;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +23,7 @@ public class CategoryPage extends BasePage {
     private final By gridProductNames = By.cssSelector(".thumbnails.grid .col-md-3 a.prdocutname");
     private final By gridProductPrices = By.cssSelector(".thumbnails.grid .col-md-3 .price .oneprice");
 
-    public CategoryPage(WebDriver driver, WebDriverWait waitHelper) {
+    public CategoryPage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
     }
 

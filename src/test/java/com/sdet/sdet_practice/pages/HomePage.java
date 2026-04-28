@@ -1,6 +1,7 @@
 package com.sdet.sdet_practice.pages;
 
 import com.sdet.sdet_practice.helpers.ParameterProvider;
+import com.sdet.sdet_practice.helpers.WaitHelper;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -19,7 +20,7 @@ public class HomePage extends BasePage {
     private final By homePageProductCards = By.cssSelector(".thumbnails.list-inline .col-md-3");
     private final By homePageProductNames = By.cssSelector("a.prdocutname");
 
-    public HomePage(WebDriver driver, WebDriverWait waitHelper) {
+    public HomePage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
     }
 
@@ -42,7 +43,7 @@ public class HomePage extends BasePage {
 
             waitHelper.clickable(categoryLink).click();
 
-            CategoryPage categoryPage = new CategoryPage(driver, waiter);
+            CategoryPage categoryPage = new CategoryPage(driver, waitHelper);
             if(categoryPage.hasSorting() && categoryPage.getProductsCount() >= 4) {
                 return categoryPage;
             }
@@ -60,7 +61,7 @@ public class HomePage extends BasePage {
 
         waitHelper.clickable(searchButton).click();
 
-        return new SearchResultsPage(driver, waiter);
+        return new SearchResultsPage(driver, waitHelper);
     }
 
     @Step("Получить количество товаров на главной странице")
@@ -80,6 +81,6 @@ public class HomePage extends BasePage {
 
         waitHelper.clickable(products.get(index)).click();
 
-        return new ProductPage(driver, waiter);
+        return new ProductPage(driver, waitHelper);
     }
 }

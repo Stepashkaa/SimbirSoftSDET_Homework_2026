@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import com.sdet.sdet_practice.helpers.WaitHelper;
 import com.sdet.sdet_practice.models.CartItem;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
@@ -26,7 +27,7 @@ public class CartPage extends BasePage {
 
     private final By totalsRows = By.cssSelector("#totals_table tr");
 
-    public CartPage(WebDriver driver, WebDriverWait waitHelper) {
+    public CartPage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
     }
 

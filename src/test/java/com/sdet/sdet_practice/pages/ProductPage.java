@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import com.sdet.sdet_practice.helpers.WaitHelper;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -28,7 +29,7 @@ public class ProductPage extends BasePage {
     private final By formGroups = By.cssSelector("form#product .form-group");
     private final By requiredMark = By.cssSelector(".required");
 
-    public ProductPage(WebDriver driver, WebDriverWait waitHelper) {
+    public ProductPage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
     }
 
@@ -136,7 +137,7 @@ public class ProductPage extends BasePage {
     @Step("Переходим в корзину")
     public CartPage openCart() {
         if (driver.getCurrentUrl().contains("checkout/cart")) {
-            return new CartPage(driver, waiter);
+            return new CartPage(driver, waitHelper);
         }
 
         waitHelper.until(driver -> {
@@ -154,6 +155,6 @@ public class ProductPage extends BasePage {
         }
 
         waitHelper.until(driver -> driver.getCurrentUrl().contains("checkout/cart"));
-        return new CartPage(driver, waiter);
+        return new CartPage(driver, waitHelper);
     }
 }

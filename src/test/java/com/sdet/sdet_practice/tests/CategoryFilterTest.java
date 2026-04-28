@@ -26,7 +26,7 @@ public class CategoryFilterTest extends BaseTest {
 
     @BeforeMethod
     public void setUpPage() {
-        HomePage homePage = new HomePage(getDriver(), getWaiter());
+        HomePage homePage = new HomePage(getDriver(), getWaitHelper());
         categoryPage = homePage.openFirstCategoryWithAtLeastFourProducts();
 
         categoryTitle = categoryPage.getPageTitle();

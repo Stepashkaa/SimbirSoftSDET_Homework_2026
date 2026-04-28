@@ -1,5 +1,6 @@
 package com.sdet.sdet_practice.pages;
 
+import com.sdet.sdet_practice.helpers.WaitHelper;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -17,7 +18,7 @@ public class SearchResultsPage extends BasePage {
     private final By gridProductCards = By.cssSelector(".thumbnails.grid .col-md-3");
     private final By gridProductNames = By.cssSelector(".thumbnails.grid .col-md-3 a.prdocutname");
 
-    public SearchResultsPage(WebDriver driver, WebDriverWait waitHelper) {
+    public SearchResultsPage(WebDriver driver, WaitHelper waitHelper) {
         super(driver, waitHelper);
     }
 
@@ -51,7 +52,7 @@ public class SearchResultsPage extends BasePage {
             products = driver.findElements(gridProductNames);
             waitHelper.clickable(products.get(i)).click();
 
-            ProductPage productPage = new ProductPage(driver, waiter);
+            ProductPage productPage = new ProductPage(driver, waitHelper);
             if(productPage.canBeAddedProductToCart()) {
                 return productPage;
             }
