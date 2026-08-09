@@ -8,6 +8,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,7 +24,7 @@ public abstract class BaseTest {
 
     @BeforeMethod
     public void up() {
-        WebDriver driver = new ChromeDriver();
+        WebDriver driver = createDriver();
         driver.manage().window().maximize();
 
         WebDriverWait waiter = new WebDriverWait(
@@ -44,6 +50,38 @@ public abstract class BaseTest {
         }
 
         WAIT_HELPER.remove();
+    }
+
+    private WebDriver createDriver() {
+        boolean remote = Boolean.parseBoolean(
+                System.getProperty("remote", "false")
+        );
+
+        if (!remote) {
+            return new ChromeDriver();
+        }
+
+        ChromeOptions options = new ChromeOptions();
+        options.setBrowserVersion(
+                System.getProperty("browser.version", "118.0")
+        );
+
+        String remoteUrl = System.getProperty(
+                "remote.url",
+                "http://selenoid:4444/wd/hub"
+        );
+
+        try {
+            return new RemoteWebDriver(
+                    new URL(remoteUrl),
+                    options
+            );
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(
+                    "Некорректный URL Selenoid: " + remoteUrl,
+                    e
+            );
+        }
     }
 
     protected WebDriver getDriver() {
