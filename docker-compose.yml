@@ -32,8 +32,10 @@ services:
       - selenoid
     networks:
       - ci4-network
+
 networks:
   ci4-network:
     name: ci4-network
+
 volumes:
   maven-cache:
