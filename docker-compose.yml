@@ -1,0 +1,41 @@
+services:
+  selenoid:
+    image: aerokube/selenoid:latest-release
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./selenoid:/etc/selenoid:ro
+      - //var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "-conf"
+      - "/etc/selenoid/browsers.json"
+      - "-container-network"
+      - "ci4-network"
+      - "-session-attempt-timeout"
+      - "2m"
+    networks:
+      - ci4-network
+
+  test-runner:
+    build: .
+    volumes:
+      - ./:/app
+      - maven-cache:/root/.m2
+    command:
+      - mvn
+      - clean
+      - test
+      - -Dremote=true
+      - -Dremote.url=http://selenoid:4444/wd/hub
+      - -Dbrowser.version=118.0
+    depends_on:
+      - selenoid
+    networks:
+      - ci4-network
+
+networks:
+  ci4-network:
+    name: ci4-network
+
+volumes:
+  maven-cache:
